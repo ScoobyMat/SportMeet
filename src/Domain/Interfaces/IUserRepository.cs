@@ -1,14 +1,16 @@
-using System;
 using Domain.Entities;
 
 namespace Domain.Interfaces;
 
 public interface IUserRepository
 {
-    Task<IEnumerable<AppUser>> GetUsersAsync();
-    Task<AppUser?> GetUserByIdAsync(int id);
-    Task<AppUser?> GetUserByEmailAsync(string email);
+    Task<IEnumerable<AppUser>> GetUsers();
+    Task<AppUser?> GetUserById(int id);
+    Task<AppUser?> GetUserByEmail(string email);
+    Task<bool> UserExistsByEmail(string email);
+    Task AddUser(AppUser user);
     void Update(AppUser user);
-    Task<bool> SaveAllAsync();
+    void Delete(AppUser user);
+    Task<bool> SaveAll();
 
 }

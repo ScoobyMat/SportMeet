@@ -6,6 +6,10 @@ namespace Application.Interfaces;
 
 public interface IUserService
 {
-    IEnumerable<UserDto> GetUsers();
-    UserDto GetUserById(int id);
+    Task<IEnumerable<MemberDto>> GetUsers();
+    Task<MemberDto?> GetUserById(int id);
+    Task<MemberDto?> GetUserByEmail(string email);
+    Task<bool> UpdateUser(MemberUpdateDto updateDto);
+    Task<bool> DeleteUser(int id);
+
 }

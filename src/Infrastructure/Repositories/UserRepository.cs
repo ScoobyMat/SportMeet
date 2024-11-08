@@ -1,33 +1,63 @@
-using System;
 using Domain.Entities;
 using Domain.Interfaces;
+using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories;
-
-public class UserRepository : IUserRepository
+namespace Infrastructure.Repositories
 {
-    public Task<AppUser?> GetUserByEmailAsync(string email)
+    public class UserRepository : IUserRepository
     {
-        throw new NotImplementedException();
-    }
+        private readonly DataContext _context;
 
-    public Task<AppUser?> GetUserByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+        public UserRepository(DataContext context) 
+        {
+            _context = context;
+        }
 
-    public Task<IEnumerable<AppUser>> GetUsersAsync()
-    {
-        throw new NotImplementedException();
-    }
+        public async Task AddUser(AppUser user)
+        {
+            await _context.Users.AddAsync(user);
+        }
 
-    public Task<bool> SaveAllAsync()
-    {
-        throw new NotImplementedException();
-    }
+        public void Delete(AppUser user)
+        {
+            _context.Users.Remove(user);
+        }
 
-    public void Update(AppUser user)
-    {
-        throw new NotImplementedException();
+        public async Task<AppUser?> GetUserByEmail(string email)
+        {
+            return await _context.Users
+                .Include(u => u.ProfilePhoto)
+                .SingleOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<AppUser?> GetUserById(int id)
+        {
+            return await _context.Users
+                .Include(u => u.ProfilePhoto)
+                .SingleOrDefaultAsync(u => u.Id == id);
+        }
+
+        public async Task<IEnumerable<AppUser>> GetUsers()
+        {
+            return await _context.Users
+                .Include(u => u.ProfilePhoto)
+                .ToListAsync();
+        }
+
+        public async Task<bool> SaveAll()
+        {
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public void Update(AppUser user)
+        {
+            _context.Entry(user).State = EntityState.Modified;
+        }
+
+        public async Task<bool> UserExistsByEmail(string email)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email);
+        }
     }
 }

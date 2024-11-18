@@ -1,4 +1,4 @@
-using Application.DTOs;
+using Application.DTOs.User;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Interfaces;
@@ -22,10 +22,10 @@ public class UserService : IUserService
         if (user == null) return false;
 
         _userRepository.Delete(user);
-        return await _userRepository.SaveAll();
+        return true;
     }
 
-    public async Task<MemberDto?> GetUserByEmail(string email)
+    public async Task<UserDto?> GetUserByEmail(string email)
     {
         var user = await _userRepository.GetUserByEmail(email);
 
@@ -34,11 +34,11 @@ public class UserService : IUserService
             return null;
         }
 
-        var userDto = _mapper.Map<MemberDto>(user);
+        var userDto = _mapper.Map<UserDto>(user);
         return userDto;
     }
 
-    public async Task<MemberDto?> GetUserById(int id)
+    public async Task<UserDto?> GetUserById(int id)
     {
         var user = await _userRepository.GetUserById(id);
 
@@ -47,19 +47,19 @@ public class UserService : IUserService
             return null;
         }
 
-        var userDto = _mapper.Map<MemberDto>(user);
+        var userDto = _mapper.Map<UserDto>(user);
         return userDto;
     }
 
-    public async Task<IEnumerable<MemberDto>> GetUsers()
+    public async Task<IEnumerable<UserDto>> GetUsers()
     {
         var users = await _userRepository.GetUsers();
 
-        var userDtos = _mapper.Map<IEnumerable<MemberDto>>(users);
+        var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
         return userDtos;
     }
 
-    public async Task<bool> UpdateUser(MemberUpdateDto memberUpdateDto)
+    public async Task<bool> UpdateUser(UserUpdateDto memberUpdateDto)
     {
         var user = await _userRepository.GetUserById(memberUpdateDto.Id);
 
@@ -71,6 +71,6 @@ public class UserService : IUserService
         _mapper.Map(memberUpdateDto, user);
         _userRepository.Update(user);
 
-       return await _userRepository.SaveAll();
+        return true;
     }
 }

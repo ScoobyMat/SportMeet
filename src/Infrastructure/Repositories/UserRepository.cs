@@ -9,7 +9,7 @@ namespace Infrastructure.Repositories
     {
         private readonly DataContext _context;
 
-        public UserRepository(DataContext context) 
+        public UserRepository(DataContext context)
         {
             _context = context;
         }
@@ -17,11 +17,13 @@ namespace Infrastructure.Repositories
         public async Task AddUser(AppUser user)
         {
             await _context.Users.AddAsync(user);
+            _context.SaveChanges();
         }
 
         public void Delete(AppUser user)
         {
             _context.Users.Remove(user);
+            _context.SaveChanges();
         }
 
         public async Task<AppUser?> GetUserByEmail(string email)
@@ -45,14 +47,10 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<bool> SaveAll()
-        {
-            return await _context.SaveChangesAsync() > 0;
-        }
-
         public void Update(AppUser user)
         {
-            _context.Entry(user).State = EntityState.Modified;
+            _context.Users.Update(user);
+            _context.SaveChanges();
         }
 
         public async Task<bool> UserExistsByEmail(string email)

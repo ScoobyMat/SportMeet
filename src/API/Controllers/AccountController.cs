@@ -1,17 +1,15 @@
-﻿using Application.DTOs;
+﻿using Application.DTOs.Auth;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AccountController(IAccountService accountService) : ControllerBase
+    public class AccountController(IAccountService accountService) : BaseApiController
     {
 
         [HttpPost("register")]
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto registerDto)
         {
             try
             {
@@ -29,7 +27,7 @@ namespace API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+        public async Task<ActionResult<AuthResponseDto>> Login(LoginDto loginDto)
         {
             try
             {

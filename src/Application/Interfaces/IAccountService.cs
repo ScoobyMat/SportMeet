@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+﻿using Application.DTOs.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace Application.Interfaces
 {
     public interface IAccountService
     {
-        Task<UserDto> Register(RegisterDto registerDto);
-        Task<UserDto> Login(LoginDto loginDto);
+        Task<AuthResponseDto> Register(RegisterDto registerDto);
+        Task<AuthResponseDto> Login(LoginDto loginDto);
     }
 }

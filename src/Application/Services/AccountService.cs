@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+﻿using Application.DTOs.Auth;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -20,7 +20,7 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<UserDto> Login(LoginDto loginDto)
+        public async Task<AuthResponseDto> Login(LoginDto loginDto)
         {
             var user = await _userRepository.GetUserByEmail(loginDto.Email);
             if (user == null)
@@ -34,7 +34,7 @@ namespace Application.Services
                 throw new UnauthorizedAccessException("Nieprawidłowe hasło");
             }
 
-            return new UserDto
+            return new AuthResponseDto
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
@@ -44,7 +44,7 @@ namespace Application.Services
         }
 
 
-        public async Task<UserDto> Register(RegisterDto registerDto)
+        public async Task<AuthResponseDto> Register(RegisterDto registerDto)
         {
             if (await _userRepository.UserExistsByEmail(registerDto.Email))
             {
@@ -63,9 +63,8 @@ namespace Application.Services
             user.Password = hashedPassword;
 
             await _userRepository.AddUser(user);
-            await _userRepository.SaveAll();
 
-            return new UserDto
+            return new AuthResponseDto
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,

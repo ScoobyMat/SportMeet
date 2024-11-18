@@ -11,6 +11,5 @@ public interface IUserRepository
     Task AddUser(AppUser user);
     void Update(AppUser user);
     void Delete(AppUser user);
-    Task<bool> SaveAll();
 
 }

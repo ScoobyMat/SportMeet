@@ -1,5 +1,5 @@
 using System;
-using Application.DTOs;
+using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Services;
 using Domain.Entities;
@@ -12,7 +12,7 @@ namespace API.Controllers;
 public class UsersController(IUserService userService) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
         var users = await userService.GetUsers();
 
@@ -20,7 +20,7 @@ public class UsersController(IUserService userService) : BaseApiController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<MemberDto>> GetUser(int id)
+    public async Task<ActionResult<UserDto>> GetUser(int id)
     {
         var user = await userService.GetUserById(id);
         if (user == null) return NotFound();
@@ -28,7 +28,7 @@ public class UsersController(IUserService userService) : BaseApiController
     }
 
     [HttpPut]
-    public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto)
+    public async Task<ActionResult> UpdateUser(UserUpdateDto memberUpdateDto)
     {
         var updated = await userService.UpdateUser(memberUpdateDto);
 

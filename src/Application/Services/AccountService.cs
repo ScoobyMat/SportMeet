@@ -36,6 +36,7 @@ namespace Application.Services
 
             return new AuthResponseDto
             {
+                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhotoUrl = user.ProfilePhoto?.Url,
@@ -66,6 +67,7 @@ namespace Application.Services
 
             return new AuthResponseDto
             {
+                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Token = _tokenService.CreateToken(user)

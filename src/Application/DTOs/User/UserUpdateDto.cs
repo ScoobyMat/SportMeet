@@ -23,7 +23,8 @@ namespace Application.DTOs.User
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<UserUpdateDto, AppUser>();
+            profile.CreateMap<UserUpdateDto, AppUser>()
+                 .ForMember(dest => dest.ProfilePhoto, opt => opt.MapFrom(src => src.PhotoUrl != null ? new Photo { Url = src.PhotoUrl } : null));
         }
     }
 }

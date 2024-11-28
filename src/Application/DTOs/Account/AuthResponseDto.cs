@@ -1,22 +1,22 @@
-using System;
-using Application.DTOs.User;
-using Application.Mappings;
+using Application.Dtos.UserDtos;
 using AutoMapper;
+using Application.Mappings;
 using Domain.Entities;
 
-namespace Application.DTOs.Auth;
-
-public class AuthResponseDto : IMap
+namespace Application.Dtos.Auth
 {
-    public required int Id { get; set; }
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
-    public required string Token { get; set; }
-    public string? PhotoUrl { get; set; }
-
-    public void Mapping(Profile profile)
+    public class AuthResponseDto : IMap
     {
-        profile.CreateMap<AppUser, UserDto>()
-            .ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.ProfilePhoto == null ? null : src.ProfilePhoto.Url));
+        public required int Id { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public required string Token { get; set; }
+        public string? PhotoUrl { get; set; }
+
+        public void Mapping(Profile profile)
+        {
+            profile.CreateMap<User, UserDto>()
+                .ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.ProfilePhoto == null ? null : src.ProfilePhoto.Url));
+        }
     }
 }

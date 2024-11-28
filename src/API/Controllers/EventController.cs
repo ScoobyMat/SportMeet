@@ -1,6 +1,8 @@
-﻿using Application.DTOs;
-using Application.DTOs.Event;
+﻿using Application.Dtos;
+using Application.Dtos.EventDtos;
+using Application.Dtos.UserDtos;
 using Application.Interfaces;
+using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -10,14 +12,14 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventDto>>> GetAllEvents()
         {
-            var events = await eventService.GetEvents();
+            var events = await eventService.GetAllEventsAsync();
             return Ok(events);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<EventDto>> GetEvent(int id)
         {
-            var eventDto = await eventService.GetEvent(id);
+            var eventDto = await eventService.GetEventByIdAsync(id);
 
             if (eventDto == null)
             {
@@ -32,7 +34,7 @@ namespace API.Controllers
         {
             try
             {
-                var eventResponse = await eventService.AddEvent(eventDto);
+                var eventResponse = await eventService.AddEventAsync(eventDto);
 
                 return CreatedAtAction(nameof(GetEvent), new { id = eventResponse?.Id }, eventResponse);
             }
@@ -43,34 +45,30 @@ namespace API.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateEvent(EventUpdateDto updatedEvent)
+        public async Task<ActionResult> UpdateUser(EventUpdateDto eventUpdate)
         {
-            if (updatedEvent == null)
-            {
-                return BadRequest();
-            }
-
-            var success =  await eventService.UpdateEvent(updatedEvent);
-
+            var success = await eventService.UpdateEventAsync(eventUpdate);
             if (!success)
             {
-                return NotFound();
+                return NotFound("Event not found.");
             }
 
             return NoContent();
+
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteEvent(int id)
+        public async Task<ActionResult> DeleteUser(int id)
         {
-            var success = await eventService.DeleteEvent(id);
 
+            var success = await eventService.DeleteEventAsync(id);
             if (!success)
             {
-                return NotFound();
+                return NotFound("Event not found.");
             }
 
             return NoContent();
+
         }
     }
 }

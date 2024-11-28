@@ -1,8 +1,6 @@
 ﻿using Application.Interfaces;
-using Domain.Entities;
 using Domain.Interfaces;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Application.Services
@@ -10,7 +8,7 @@ namespace Application.Services
     public class GroupService : IGroupService
     {
         private readonly IGroupRepository _groupRepository;
-        private readonly IUserRepository _userRepository; 
+        private readonly IUserRepository _userRepository;
 
         public GroupService(IGroupRepository groupRepository, IUserRepository userRepository)
         {
@@ -18,78 +16,51 @@ namespace Application.Services
             _userRepository = userRepository;
         }
 
-        public async Task<bool> AddMemberToGroupByUserId(int groupId, int userId)
+        public async Task AddMemberToGroupByEmailAsync(int groupId, string email)
         {
-            var group = await _groupRepository.GetGroup(groupId);
+            var group = await _groupRepository.GetByIdAsync(groupId);
             if (group == null)
-            {
-                return false;
-            }
+                throw new ArgumentException("Group not found");
 
-            var user = await _userRepository.GetUserById(userId);
+            var user = await _userRepository.GetByEmailAsync(email);
             if (user == null)
-            {
-                return false;
-            }
+                throw new ArgumentException("User not found");
 
-            if (group.Members.Any(m => m.Id == userId))
-            {
-                return false;
-            }
+            var existingMember = group.Members.Find(m => m.UserId == user.Id);
+            if (existingMember != null)
+                throw new ArgumentException("User is already a member of this group");
 
-            group.Members.Add(user);
-            _groupRepository.UpdateGroup(group);
-
-            return true;
+            await _groupRepository.AddMemberToGroupAsync(groupId, user.Id);
         }
 
-        public async Task<bool> AddMemberToGroupByEmail(int groupId, string email)
+        public async Task AddMemberToGroupByUserIdAsync(int groupId, int userId)
         {
-            var group = await _groupRepository.GetGroup(groupId);
+            var group = await _groupRepository.GetByIdAsync(groupId);
             if (group == null)
-            {
-                return false;
-            }
+                throw new ArgumentException("Group not found");
 
-            var user = await _userRepository.GetUserByEmail(email);
+            var user = await _userRepository.GetByIdAsync(userId);
             if (user == null)
-            {
-                return false;
-            }
+                throw new ArgumentException("User not found");
 
-            if (group.Members.Any(m => m.Id == user.Id))
-            {
-                return false;
-            }
+            var existingMember = group.Members.Find(m => m.UserId == user.Id);
+            if (existingMember != null)
+                throw new ArgumentException("User is already a member of this group");
 
-            group.Members.Add(user);
-            _groupRepository.UpdateGroup(group);
-            return true;
+            await _groupRepository.AddMemberToGroupAsync(groupId, userId);
         }
 
-        public async Task<bool> RemoveMemberFromGroup(int groupId, int userId)
+        public async Task RemoveMemberFromGroupAsync(int groupId, int userId)
         {
-            // Pobranie grupy
-            var group = await _groupRepository.GetGroup(groupId);
+            var group = await _groupRepository.GetByIdAsync(groupId);
             if (group == null)
-            {
-                return false; // Grupa nie istnieje
-            }
+                throw new ArgumentException("Group not found");
 
-            // Znalezienie użytkownika w grupie
-            var user = group.Members.FirstOrDefault(m => m.Id == userId);
-            if (user == null)
-            {
-                return false; // Użytkownik nie jest członkiem grupy
-            }
+            var existingMember = group.Members.Find(m => m.UserId == userId);
+            if (existingMember == null)
+                throw new ArgumentException("User is not a member of this group");
 
-            // Usuwanie użytkownika z grupy
-            group.Members.Remove(user);
-
-            // Zaktualizowanie grupy w repozytorium i zapisanie zmian
-            _groupRepository.UpdateGroup(group);
-
-            return true; // Użytkownik został usunięty
+            await _groupRepository.RemoveMemberFromGroupAsync(groupId, userId);
         }
     }
 }

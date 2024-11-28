@@ -9,10 +9,10 @@ namespace Domain.Interfaces
 {
     public interface IEventRepository
     {
-        Task<IEnumerable<Event>> GetEvents();
-        Task<Event?> GetEvent(int id);
-        Task Add(Event AddEvent);
-        void UpdateEvent(Event UpdateEvent);
-        void DeleteEvent(Event DeleteEvent);
+        Task<IEnumerable<Event>> GetAllAsync();
+        Task<Event?> GetByIdAsync(int id);
+        Task AddAsync(Event AddEvent);
+        Task UpdateAsync(Event UpdateEvent);
+        Task DeleteAsync(Event DeleteEvent);
     }
 }

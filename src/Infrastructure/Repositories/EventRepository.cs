@@ -14,38 +14,40 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task Add(Event AddEvent)
+        public async Task AddAsync(Event AddEvent)
         {
            await _context.Events.AddAsync(AddEvent);
-            _context.SaveChanges();
+           await _context.SaveChangesAsync();
         }
 
-        public void DeleteEvent(Event DeleteEvent)
+        public async Task DeleteAsync(Event DeleteEvent)
         {
             _context.Events.Remove(DeleteEvent);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<Event?> GetEvent(int id)
+        public async Task<Event?> GetByIdAsync(int id)
         {
             return await _context.Events
                 .Include(e => e.Group)
                 .ThenInclude(g => g.Members)
+                .ThenInclude(gm => gm.User)
                 .FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public async Task<IEnumerable<Event>> GetEvents()
+        public async Task<IEnumerable<Event>> GetAllAsync()
         {
             return await _context.Events
                 .Include(e => e.Group)
                 .ThenInclude(g => g.Members)
+                .ThenInclude(gm => gm.User)
                 .ToListAsync();
         }
 
-        public void UpdateEvent(Event UpdateEvent)
+        public async Task UpdateAsync(Event UpdateEvent)
         {
             _context.Events.Update(UpdateEvent);
-            _context.SaveChanges();
+           await _context.SaveChangesAsync();
         }
     }
 }

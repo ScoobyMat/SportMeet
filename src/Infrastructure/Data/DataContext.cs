@@ -9,12 +9,24 @@ namespace Infrastructure.Data
         {
         }
 
-        public DbSet<AppUser> Users { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Group> Groups { get; set; }
 
         public override int SaveChanges()
+        {
+            SetEntityTimestamps();
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            SetEntityTimestamps();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void SetEntityTimestamps()
         {
             var entries = ChangeTracker.Entries();
 
@@ -34,8 +46,6 @@ namespace Infrastructure.Data
                     }
                 }
             }
-
-            return base.SaveChanges();
         }
 
 

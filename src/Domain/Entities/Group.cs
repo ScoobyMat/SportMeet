@@ -9,11 +9,11 @@ namespace Domain.Entities
     public class Group : BaseDomainEntity
     {
         public int ManagedByUserId { get; set; }
-        public AppUser ManagedByUser { get; set; } = null!;
+        public User ManagedByUser { get; set; } = null!;
 
         public Event Event { get; set; } = null!;
         public int EventId { get; set; }
         
-        public List<AppUser> Members { get; set; } = [];
+        public List<GroupMember> Members { get; set; } = [];
     }
 }

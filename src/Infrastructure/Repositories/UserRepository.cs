@@ -14,46 +14,46 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task AddUser(AppUser user)
+        public async Task AddAsync(User user)
         {
             await _context.Users.AddAsync(user);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void Delete(AppUser user)
+        public async Task DeleteAsync(User user)
         {
             _context.Users.Remove(user);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<AppUser?> GetUserByEmail(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Users
                 .Include(u => u.ProfilePhoto)
                 .SingleOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<AppUser?> GetUserById(int id)
+        public async Task<User?> GetByIdAsync(int userId)
         {
             return await _context.Users
                 .Include(u => u.ProfilePhoto)
-                .SingleOrDefaultAsync(u => u.Id == id);
+                .SingleOrDefaultAsync(u => u.Id == userId);
         }
 
-        public async Task<IEnumerable<AppUser>> GetUsers()
+        public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _context.Users
                 .Include(u => u.ProfilePhoto)
                 .ToListAsync();
         }
 
-        public void Update(AppUser user)
+        public async Task UpdateAsync(User user)
         {
             _context.Users.Update(user);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> UserExistsByEmail(string email)
+        public async Task<bool> ExistsByEmailAsync(string email)
         {
             return await _context.Users.AnyAsync(u => u.Email == email);
         }

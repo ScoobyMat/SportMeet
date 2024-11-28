@@ -22,64 +22,6 @@ namespace Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Entities.AppUser", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("date");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Gender")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("GroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Introduction")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("LastModified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("Users");
-                });
-
             modelBuilder.Entity("Domain.Entities.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -87,6 +29,14 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -97,6 +47,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<string>("EventName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -104,7 +57,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("LastModified")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Location")
+                    b.Property<string>("SportType")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -145,6 +98,29 @@ namespace Infrastructure.Migrations
                     b.ToTable("Groups");
                 });
 
+            modelBuilder.Entity("Domain.Entities.GroupMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupMember");
+                });
+
             modelBuilder.Entity("Domain.Entities.Photo", b =>
                 {
                     b.Property<int>("Id")
@@ -153,9 +129,6 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppUserId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("PublicId")
                         .HasColumnType("text");
 
@@ -163,24 +136,76 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId")
+                    b.HasIndex("UserId")
                         .IsUnique();
 
                     b.ToTable("Photos");
                 });
 
-            modelBuilder.Entity("Domain.Entities.AppUser", b =>
+            modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.HasOne("Domain.Entities.Group", null)
-                        .WithMany("Members")
-                        .HasForeignKey("GroupId");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreferredSports")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Domain.Entities.Event", b =>
                 {
-                    b.HasOne("Domain.Entities.AppUser", "CreatedByUser")
+                    b.HasOne("Domain.Entities.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -197,7 +222,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.AppUser", "ManagedByUser")
+                    b.HasOne("Domain.Entities.User", "ManagedByUser")
                         .WithMany()
                         .HasForeignKey("ManagedByUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -208,20 +233,34 @@ namespace Infrastructure.Migrations
                     b.Navigation("ManagedByUser");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Photo", b =>
+            modelBuilder.Entity("Domain.Entities.GroupMember", b =>
                 {
-                    b.HasOne("Domain.Entities.AppUser", "AppUser")
-                        .WithOne("ProfilePhoto")
-                        .HasForeignKey("Domain.Entities.Photo", "AppUserId")
+                    b.HasOne("Domain.Entities.Group", "Group")
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AppUser");
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.AppUser", b =>
+            modelBuilder.Entity("Domain.Entities.Photo", b =>
                 {
-                    b.Navigation("ProfilePhoto");
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithOne("ProfilePhoto")
+                        .HasForeignKey("Domain.Entities.Photo", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Event", b =>
@@ -233,6 +272,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Group", b =>
                 {
                     b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("Domain.Entities.User", b =>
+                {
+                    b.Navigation("ProfilePhoto");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,18 +1,17 @@
-﻿using Application.Mappings;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.Entities;
+using Application.Dtos.UserDtos;
+using Application.Mappings;
 
-namespace Application.DTOs.User
+public class MemberDto : IMap
 {
-    public class MemberDto : IMap
-    {
-        public required string FirstName { get; set; }
-        public required string LastName { get; set; }
-        public required string Email { get; set; }
+    public required int UserId { get; set; }
+    public required string FirstName { get; set; }
+    public required string LastName { get; set; }
+    public required string Email { get; set; }
 
-        public void Mapping(Profile profile)
-        {
-            profile.CreateMap<AppUser, MemberDto>();
-        }
+    public void Mapping(Profile profile)
+    {
+        profile.CreateMap<User, UserDto>();
     }
 }

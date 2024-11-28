@@ -11,9 +11,9 @@ namespace API.Installers
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "Sportify API",
+                    Title = "SportMeet API",
                     Version = "v1",
-                    Description = "Sportify API"
+                    Description = "SportMeet API"
                 });
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

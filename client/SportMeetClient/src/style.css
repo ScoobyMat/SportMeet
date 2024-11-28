@@ -1,0 +1,60 @@
+body {
+  margin: auto;
+  text-align: center;
+  /* background: linear-gradient(45deg, #81c2ec, #8cebb7); */
+  background: linear-gradient(45deg, #5fb5ee, #43e48b);
+  background-attachment: fixed;
+}
+
+#app {
+  margin: auto;
+  padding-top: 10vh;
+  padding-bottom: 5vh;
+  padding-left: 2vh;
+  padding-right: 2vh;
+  text-align: center;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.navbar {
+  min-height: 8vh;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 15px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  justify-content: center;
+  align-items: center;
+  padding: 2vh;
+  margin-bottom: 2vh;
+  min-height: 83vh;
+  min-width: 320px;
+}
+
+.small-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-radius: 15px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  justify-content: center;
+  align-items: center;
+  min-height: 40vh;
+  min-width: 320px;
+  padding: 2vh;
+  margin-bottom: 3vh;
+}
+
+p {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.footer {
+  min-height: 5vh;
+}

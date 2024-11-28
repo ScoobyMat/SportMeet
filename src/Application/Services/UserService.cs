@@ -1,4 +1,4 @@
-using Application.DTOs.User;
+using Application.Dtos.UserDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Interfaces;
@@ -16,18 +16,22 @@ public class UserService : IUserService
             _mapper = mapper;
         }
 
-    public async Task<bool> DeleteUser(int id)
+    public async Task<bool> DeleteUserAsync(int id)
     {
-        var user = await _userRepository.GetUserById(id);
-        if (user == null) return false;
+        var user = await _userRepository.GetByIdAsync(id);
 
-        _userRepository.Delete(user);
+        if (user == null)
+        {
+            return false;
+        }
+
+        await _userRepository.DeleteAsync(user);
         return true;
     }
 
-    public async Task<UserDto?> GetUserByEmail(string email)
+    public async Task<UserDto?> GetUserByEmailAsync(string email)
     {
-        var user = await _userRepository.GetUserByEmail(email);
+        var user = await _userRepository.GetByEmailAsync(email);
 
         if (user == null)
         {
@@ -38,9 +42,9 @@ public class UserService : IUserService
         return userDto;
     }
 
-    public async Task<UserDto?> GetUserById(int id)
+    public async Task<UserDto?> GetUserByIdAsync(int id)
     {
-        var user = await _userRepository.GetUserById(id);
+        var user = await _userRepository.GetByIdAsync(id);
 
         if (user == null)
         {
@@ -51,17 +55,17 @@ public class UserService : IUserService
         return userDto;
     }
 
-    public async Task<IEnumerable<UserDto>> GetUsers()
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
     {
-        var users = await _userRepository.GetUsers();
+        var users = await _userRepository.GetAllAsync();
 
         var userDtos = _mapper.Map<IEnumerable<UserDto>>(users);
         return userDtos;
     }
 
-    public async Task<bool> UpdateUser(UserUpdateDto memberUpdateDto)
+    public async Task<bool> UpdateUserAsync(UserUpdateDto memberUpdateDto)
     {
-        var user = await _userRepository.GetUserById(memberUpdateDto.Id);
+        var user = await _userRepository.GetByIdAsync(memberUpdateDto.Id);
 
         if (user == null)
         {
@@ -69,8 +73,7 @@ public class UserService : IUserService
         }
 
         _mapper.Map(memberUpdateDto, user);
-        _userRepository.Update(user);
-
+        await _userRepository.UpdateAsync(user);
         return true;
     }
 }

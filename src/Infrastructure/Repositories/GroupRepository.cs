@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
@@ -16,40 +15,78 @@ namespace Infrastructure.Repositories
 
         public GroupRepository(DataContext context)
         {
-            _context = context; 
+            _context = context;
         }
 
-        public async Task Add(Group group)
+        public async Task AddAsync(Group group)
         {
             await _context.Groups.AddAsync(group);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteGroup(Group group)
+        public async Task UpdateAsync(Group group)
         {
-           _context.Groups.Remove(group);
-           _context.SaveChanges();
+            _context.Groups.Update(group);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<Group?> GetGroup(int id)
+        public async Task DeleteAsync(Group group)
+        {
+            _context.Groups.Remove(group);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Group?> GetByIdAsync(int id)
         {
             return await _context.Groups
                 .Include(g => g.Event)
+                .Include(g => g.Members)
+                    .ThenInclude(m => m.User)
                 .FirstOrDefaultAsync(g => g.Id == id);
         }
 
-        public async Task<IEnumerable<Group>> GetGroups()
+        public async Task<IEnumerable<Group>> GetAllAsync()
         {
             return await _context.Groups
                 .Include(g => g.Event)
+                .Include(g => g.Members)
+                    .ThenInclude(m => m.User)
                 .ToListAsync();
         }
 
-        public void UpdateGroup(Group group)
+        public async Task AddMemberToGroupAsync(int groupId, int userId)
         {
-            _context.Groups.Update(group);
-            _context.SaveChanges();
+            var group = await _context.Groups
+                .Include(g => g.Members)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+
+            var user = await _context.Users.FindAsync(userId);
+
+            var groupMember = new GroupMember
+            {
+                GroupId = groupId,
+                UserId = userId,
+                Group = group,
+                User = user
+            };
+
+            group.Members.Add(groupMember);
+            await _context.SaveChangesAsync();
         }
 
+        public async Task RemoveMemberFromGroupAsync(int groupId, int userId)
+        {
+            var group = await _context.Groups
+                .Include(g => g.Members)
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+
+            var groupMember = group?.Members.FirstOrDefault(m => m.UserId == userId);
+
+            if (groupMember != null)
+            {
+                group.Members.Remove(groupMember);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

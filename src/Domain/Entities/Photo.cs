@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Domain.Entities
+﻿namespace Domain.Entities
 {
     public class Photo
     {
@@ -12,7 +6,7 @@ namespace Domain.Entities
         public required string Url { get; set; }
         public string? PublicId { get; set; }
 
-        public int AppUserId { get; set; }
-        public AppUser AppUser { get; set; } = null!;
+        public int UserId { get; set; }
+        public User User { get; set; } = null!;
     }
 }

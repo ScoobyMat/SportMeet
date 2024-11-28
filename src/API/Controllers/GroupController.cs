@@ -1,51 +1,58 @@
 ﻿using Application.Interfaces;
-using Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    public class GroupController(IGroupService groupService) : BaseApiController
+    public class GroupController : BaseApiController
     {
-        [HttpPost("{groupId}/addMemberByUserId")]
+        private readonly IGroupService _groupService;
+
+        public GroupController(IGroupService groupService)
+        {
+            _groupService = groupService;
+        }
+
+        [HttpPost("addMemberByUserId")]
         public async Task<ActionResult> AddMemberByUserId(int groupId, int userId)
         {
-            var success = await groupService.AddMemberToGroupByUserId(groupId, userId);
-            if (!success)
+            try
             {
-                return BadRequest("Failed to add member.");
+                await _groupService.AddMemberToGroupByUserIdAsync(groupId, userId);
+                return Ok("Member added successfully.");
             }
-
-            return Ok("Member added successfully.");
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpPost("{groupId}/addMemberByEmail")]
+        [HttpPost("addMemberByEmail")]
         public async Task<ActionResult> AddMemberByEmail(int groupId, string email)
         {
-            var success = await groupService.AddMemberToGroupByEmail(groupId, email);
-            if (!success)
+            try
             {
-                return BadRequest("Failed to add member.");
+                await _groupService.AddMemberToGroupByEmailAsync(groupId, email);
+                return Ok("Member added successfully.");
             }
-
-            return Ok("Member added successfully.");
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
-        [HttpDelete("{groupId}/removeMemberByUserId")]
+        [HttpDelete("removeMember")]
         public async Task<ActionResult> RemoveMemberByUserId(int groupId, int userId)
         {
-            if (userId <= 0)
+            try
             {
-                return BadRequest("Invalid user ID.");
+                await _groupService.RemoveMemberFromGroupAsync(groupId, userId);
+                return Ok("Member removed successfully.");
             }
-
-            var success = await groupService.RemoveMemberFromGroup(groupId, userId);
-            if (!success)
+            catch (ArgumentException ex)
             {
-                return BadRequest("Failed to remove member.");
+                return BadRequest(ex.Message);
             }
-
-            return Ok("Member removed successfully.");
         }
-
     }
 }

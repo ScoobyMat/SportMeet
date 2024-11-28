@@ -1,9 +1,5 @@
-using System;
-using Application.DTOs.User;
+using Application.Dtos.UserDtos;
 using Application.Interfaces;
-using Application.Services;
-using Domain.Entities;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -14,7 +10,7 @@ public class UsersController(IUserService userService) : BaseApiController
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
-        var users = await userService.GetUsers();
+        var users = await userService.GetAllUsersAsync();
 
         return Ok(users);
     }
@@ -22,18 +18,28 @@ public class UsersController(IUserService userService) : BaseApiController
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUser(int id)
     {
-        var user = await userService.GetUserById(id);
+        var user = await userService.GetUserByIdAsync(id);
+        if (user == null) return NotFound();
+        return Ok(user);
+    }
+
+    [HttpGet("userEmail/{email}")]
+    public async Task<ActionResult<UserDto>> GetUser(string email)
+    {
+        var user = await userService.GetUserByEmailAsync(email);
         if (user == null) return NotFound();
         return Ok(user);
     }
 
     [HttpPut]
-    public async Task<ActionResult> UpdateUser(UserUpdateDto memberUpdateDto)
+    public async Task<ActionResult> UpdateUser(UserUpdateDto userUpdateDto)
     {
-        var updated = await userService.UpdateUser(memberUpdateDto);
+        var success = await userService.UpdateUserAsync(userUpdateDto);
 
-        if (!updated)
-            return NotFound();
+        if (!success)
+        {
+            return NotFound("User not found.");
+        }
 
         return NoContent();
     }
@@ -41,11 +47,16 @@ public class UsersController(IUserService userService) : BaseApiController
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteUser(int id)
     {
-        var deleted = await userService.DeleteUser(id);
+        var success = await userService.DeleteUserAsync(id);
 
-        if (!deleted)
-            return NotFound();
+        if (!success)
+        {
+            return NotFound("User not found.");
+        }
 
         return NoContent();
     }
+
+
+
 }

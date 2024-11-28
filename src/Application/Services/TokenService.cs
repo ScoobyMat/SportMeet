@@ -17,7 +17,7 @@ namespace Application.Services
             _configuration = configuration;
         }
 
-        public string CreateToken(AppUser user)
+        public string CreateToken(User user)
         {
             var tokenKey = _configuration["JwtTokenKey"] ?? throw new Exception("Cannot access JwtTokenKey from appsettings");
             if (tokenKey.Length < 64) throw new Exception("Your tokenKey needs to be longer");

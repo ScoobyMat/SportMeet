@@ -1,14 +1,9 @@
 ﻿using Application.Mappings;
 using AutoMapper;
 using Domain.Entities;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Application.DTOs.Auth
+namespace Application.Dtos.Auth
 {
     public class RegisterDto : IMap
     {
@@ -33,7 +28,7 @@ namespace Application.DTOs.Auth
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<RegisterDto, AppUser>();
+            profile.CreateMap<RegisterDto, User>();
             profile.CreateMap<string, DateOnly>().ConvertUsing(s => DateOnly.Parse(s));
         }
     }

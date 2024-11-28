@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Auth;
+﻿using Application.Dtos.Auth;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;

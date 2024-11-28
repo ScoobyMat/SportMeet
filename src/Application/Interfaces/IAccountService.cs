@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Auth;
+﻿using Application.Dtos.Auth;
 using System;
 using System.Collections.Generic;
 using System.Linq;

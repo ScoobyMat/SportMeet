@@ -1,14 +1,8 @@
-﻿using Application.DTOs;
-using Application.DTOs.Event;
+﻿using Application.Dtos.EventDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -25,63 +19,59 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<EventDto?> AddEvent(EventCreateDto eventDto)
+        public async Task<EventDto?> AddEventAsync(EventCreateDto eventDto)
         {
-            var user = await _userRepository.GetUserById(eventDto.CreatedByUserId);
-
+            var user = await _userRepository.GetByIdAsync(eventDto.CreatedByUserId);
             if (user == null)
             {
-                throw new Exception($"User with ID {eventDto.CreatedByUserId} not found.");
+                return null;
             }
 
-            var eventEntity = new Event
-            {
-                EventName = eventDto.EventName,
-                Location = eventDto.Location,
-                Date = eventDto.Date,
-                CreatedByUserId = eventDto.CreatedByUserId
-            };
+            var eventEntity = _mapper.Map<Event>(eventDto);
+            eventEntity.CreatedByUserId = eventDto.CreatedByUserId;
 
             var newGroup = new Group
             {
                 ManagedByUserId = eventDto.CreatedByUserId,
-                Members = new List<AppUser> { user } 
+                Members = new List<GroupMember>
+                    {
+                        new GroupMember { UserId = eventDto.CreatedByUserId }
+                    }
             };
 
             eventEntity.Group = newGroup;
 
-            await _eventRepository.Add(eventEntity);
+            await _eventRepository.AddAsync(eventEntity);
 
             var eventResponse = _mapper.Map<EventDto>(eventEntity);
-
             eventResponse.GroupId = newGroup.Id;
 
             return eventResponse;
         }
 
-        public async Task<bool> DeleteEvent(int eventId)
+
+        public async Task<bool> DeleteEventAsync(int eventId)
         {
-            var eventToDelete = await _eventRepository.GetEvent(eventId);
+            var eventToDelete = await _eventRepository.GetByIdAsync(eventId);
 
             if (eventToDelete == null)
             {
                 return false;
             }
 
-            _eventRepository.DeleteEvent(eventToDelete);
-
+            await _eventRepository.DeleteAsync(eventToDelete);
             return true;
         }
 
-        public async Task<IEnumerable<EventDto>> GetEvents()
+        public async Task<IEnumerable<EventDto>> GetAllEventsAsync()
         {
-            var events = await _eventRepository.GetEvents();
+            var events = await _eventRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<EventDto>>(events);
         }
 
-        public async Task<EventDto?> GetEvent(int id)
+        public async Task<EventDto?> GetEventByIdAsync(int id)
         {
-            var eventEntity = await _eventRepository.GetEvent(id);
+            var eventEntity = await _eventRepository.GetByIdAsync(id);
 
             if (eventEntity == null)
             {
@@ -93,18 +83,16 @@ namespace Application.Services
             return eventDto;
         }
 
-        public async Task<bool> UpdateEvent(EventUpdateDto eventUpdateDto)
+        public async Task<bool> UpdateEventAsync(EventUpdateDto eventUpdateDto)
         {
-            var eventToUpdate = await _eventRepository.GetEvent(eventUpdateDto.Id);
-
-            if (eventToUpdate == null)
+            var eventToUpdat = await _eventRepository.GetByIdAsync(eventUpdateDto.Id);
+            if (eventToUpdat == null)
             {
                 return false;
             }
 
-            _mapper.Map(eventUpdateDto, eventToUpdate);
-            _eventRepository.UpdateEvent(eventToUpdate);
-
+            _mapper.Map(eventUpdateDto, eventToUpdat);
+            await _eventRepository.UpdateAsync(eventToUpdat);
             return true;
         }
     }

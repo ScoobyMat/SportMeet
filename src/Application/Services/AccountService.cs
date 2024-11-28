@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Auth;
+﻿using Application.Dtos.Auth;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -22,7 +22,7 @@ namespace Application.Services
 
         public async Task<AuthResponseDto> Login(LoginDto loginDto)
         {
-            var user = await _userRepository.GetUserByEmail(loginDto.Email);
+            var user = await _userRepository.GetByEmailAsync(loginDto.Email);
             if (user == null)
             {
                 throw new UnauthorizedAccessException("Nieprawidłowy email");
@@ -47,7 +47,7 @@ namespace Application.Services
 
         public async Task<AuthResponseDto> Register(RegisterDto registerDto)
         {
-            if (await _userRepository.UserExistsByEmail(registerDto.Email))
+            if (await _userRepository.ExistsByEmailAsync(registerDto.Email))
             {
                 throw new ArgumentException("Istnieje już użytkownik o takim adresie email");
             }
@@ -60,10 +60,10 @@ namespace Application.Services
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
 
-            var user = _mapper.Map<AppUser>(registerDto);
+            var user = _mapper.Map<User>(registerDto);
             user.Password = hashedPassword;
 
-            await _userRepository.AddUser(user);
+            await _userRepository.AddAsync(user);
 
             return new AuthResponseDto
             {
@@ -74,5 +74,6 @@ namespace Application.Services
 
         };
         }
+
     }
 }

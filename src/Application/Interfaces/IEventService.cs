@@ -1,14 +1,14 @@
-﻿using Application.DTOs;
-using Application.DTOs.Event;
+﻿using Application.Dtos;
+using Application.Dtos.EventDtos;
 
 namespace Application.Interfaces
 {
     public interface IEventService
     {
-        Task<IEnumerable<EventDto>> GetEvents();
-        Task<EventDto?> GetEvent(int eventId);
-        Task<EventDto?> AddEvent(EventCreateDto eventCreateDto);
-        Task<bool> UpdateEvent(EventUpdateDto eventUpdateDto);
-        Task<bool> DeleteEvent(int eventId);
+        Task<IEnumerable<EventDto>> GetAllEventsAsync();
+        Task<EventDto?> GetEventByIdAsync(int eventId);
+        Task<EventDto?> AddEventAsync(EventCreateDto eventCreateDto);
+        Task<bool> UpdateEventAsync(EventUpdateDto eventUpdateDto);
+        Task<bool> DeleteEventAsync(int eventId);
     }
 }

@@ -1,18 +1,18 @@
 ﻿using Domain.Entities;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
     public interface IGroupRepository
     {
-        Task<IEnumerable<Group>> GetGroups();
-        Task<Group?> GetGroup(int id);
-        Task Add(Group group);
-        void UpdateGroup(Group group);
-        void DeleteGroup(Group group);
+        Task<IEnumerable<Group>> GetAllAsync();
+        Task<Group?> GetByIdAsync(int id);
+        Task AddAsync(Group group);
+        Task UpdateAsync(Group group);
+        Task DeleteAsync(Group group);
+
+        Task AddMemberToGroupAsync(int groupId, int userId);
+        Task RemoveMemberFromGroupAsync(int groupId, int userId);
     }
 }

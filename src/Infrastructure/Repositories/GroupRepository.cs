@@ -2,10 +2,6 @@
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -54,39 +50,12 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task AddMemberToGroupAsync(int groupId, int userId)
+        public async Task<Group?> GetGroupByEventIdAsync(int eventId)
         {
-            var group = await _context.Groups
+            return await _context.Groups
                 .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.Id == groupId);
-
-            var user = await _context.Users.FindAsync(userId);
-
-            var groupMember = new GroupMember
-            {
-                GroupId = groupId,
-                UserId = userId,
-                Group = group,
-                User = user
-            };
-
-            group.Members.Add(groupMember);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task RemoveMemberFromGroupAsync(int groupId, int userId)
-        {
-            var group = await _context.Groups
-                .Include(g => g.Members)
-                .FirstOrDefaultAsync(g => g.Id == groupId);
-
-            var groupMember = group?.Members.FirstOrDefault(m => m.UserId == userId);
-
-            if (groupMember != null)
-            {
-                group.Members.Remove(groupMember);
-                await _context.SaveChangesAsync();
-            }
+                    .ThenInclude(m => m.User)
+                .FirstOrDefaultAsync(g => g.EventId == eventId);
         }
     }
 }

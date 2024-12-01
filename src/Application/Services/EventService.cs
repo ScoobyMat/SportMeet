@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.EventDtos;
+using Application.Dtos.GroupDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -9,51 +10,40 @@ namespace Application.Services
     public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IGroupRepository _groupRepository;
+        private readonly IGroupService _groupService;
         private readonly IMapper _mapper;
 
-        public EventService(IEventRepository eventRepository, IUserRepository userRepository, IMapper mapper)
+        public EventService(IEventRepository eventRepository,IGroupRepository groupRepository,IGroupService groupService,IMapper mapper)
         {
             _eventRepository = eventRepository;
-            _userRepository = userRepository;
+            _groupRepository = groupRepository;
+            _groupService = groupService;
             _mapper = mapper;
         }
 
         public async Task<EventDto?> AddEventAsync(EventCreateDto eventDto)
         {
-            var user = await _userRepository.GetByIdAsync(eventDto.CreatedByUserId);
-            if (user == null)
-            {
-                return null;
-            }
+            var newEvent = _mapper.Map<Event>(eventDto);
+            await _eventRepository.AddAsync(newEvent);
 
-            var eventEntity = _mapper.Map<Event>(eventDto);
-            eventEntity.CreatedByUserId = eventDto.CreatedByUserId;
-
-            var newGroup = new Group
+            var GroupCreateDto = new GroupCreateDto
             {
-                ManagedByUserId = eventDto.CreatedByUserId,
-                Members = new List<GroupMember>
-                    {
-                        new GroupMember { UserId = eventDto.CreatedByUserId }
-                    }
+                EventId = newEvent.Id,
+                CreatedByUserId = newEvent.CreatedByUserId,
             };
 
-            eventEntity.Group = newGroup;
+            var groupDto = await _groupService.CreateGroupAsync(GroupCreateDto);
 
-            await _eventRepository.AddAsync(eventEntity);
+            var createdEvent = await _eventRepository.GetByIdAsync(newEvent.Id);
+            var eventDtoMapped = _mapper.Map<EventDto>(createdEvent);
 
-            var eventResponse = _mapper.Map<EventDto>(eventEntity);
-            eventResponse.GroupId = newGroup.Id;
-
-            return eventResponse;
+            return eventDtoMapped;
         }
-
 
         public async Task<bool> DeleteEventAsync(int eventId)
         {
             var eventToDelete = await _eventRepository.GetByIdAsync(eventId);
-
             if (eventToDelete == null)
             {
                 return false;
@@ -72,27 +62,25 @@ namespace Application.Services
         public async Task<EventDto?> GetEventByIdAsync(int id)
         {
             var eventEntity = await _eventRepository.GetByIdAsync(id);
-
             if (eventEntity == null)
             {
                 return null;
             }
 
             var eventDto = _mapper.Map<EventDto>(eventEntity);
-
             return eventDto;
         }
 
         public async Task<bool> UpdateEventAsync(EventUpdateDto eventUpdateDto)
         {
-            var eventToUpdat = await _eventRepository.GetByIdAsync(eventUpdateDto.Id);
-            if (eventToUpdat == null)
+            var eventToUpdate = await _eventRepository.GetByIdAsync(eventUpdateDto.Id);
+            if (eventToUpdate == null)
             {
                 return false;
             }
 
-            _mapper.Map(eventUpdateDto, eventToUpdat);
-            await _eventRepository.UpdateAsync(eventToUpdat);
+            _mapper.Map(eventUpdateDto, eventToUpdate);
+            await _eventRepository.UpdateAsync(eventToUpdate);
             return true;
         }
     }

@@ -12,11 +12,10 @@ namespace Domain.Entities
         public required string Gender { get; set; }
         public required string City { get; set; }
         public required string Country { get; set; }
-
         public string? Description { get; set; }
         public string? PreferredSports { get; set; }
-
         public Photo? ProfilePhoto { get; set; }
+
         public int GetAge()
         {
             return DateOfBirth.CalculateAge();

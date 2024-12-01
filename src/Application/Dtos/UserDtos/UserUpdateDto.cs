@@ -16,11 +16,11 @@ namespace Application.Dtos.UserDtos
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<UserUpdateDto, User>()
-                .ForMember(dest => dest.ProfilePhoto, opt =>
+            profile.CreateMap<UserUpdateDto, User>();
+                /*.ForMember(dest => dest.ProfilePhoto, opt =>
                     opt.MapFrom(src =>
                         src.PhotoUrl != null ? new Photo { Url = src.PhotoUrl } : null
-                    ));
+                    ));*/
         }
 
     }

@@ -30,18 +30,15 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<EventDto>> AddEvent(EventCreateDto eventDto)
+        public async Task<ActionResult<EventDto>> AddEvent([FromBody] EventCreateDto eventDto)
         {
-            try
+            var result = await eventService.AddEventAsync(eventDto);
+            if (result == null)
             {
-                var eventResponse = await eventService.AddEventAsync(eventDto);
+                return BadRequest("Event creation failed.");
+            }
 
-                return CreatedAtAction(nameof(GetEvent), new { id = eventResponse?.Id }, eventResponse);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
+            return CreatedAtAction(nameof(GetEvent), new { id = result.Id }, result);
         }
 
         [HttpPut]

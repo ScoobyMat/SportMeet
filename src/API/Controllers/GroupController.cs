@@ -1,6 +1,6 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos.GroupDtos;
+using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -13,46 +13,38 @@ namespace API.Controllers
             _groupService = groupService;
         }
 
-        [HttpPost("addMemberByUserId")]
-        public async Task<ActionResult> AddMemberByUserId(int groupId, int userId)
+        [HttpGet]
+        public async Task<IActionResult> GetAllGroups()
         {
-            try
+            var groupDtos = await _groupService.GetAllGroupsAsync();
+
+            if (groupDtos == null || !groupDtos.Any())
             {
-                await _groupService.AddMemberToGroupByUserIdAsync(groupId, userId);
-                return Ok("Member added successfully.");
+                return NoContent();
             }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
+            return Ok(groupDtos);
         }
 
-        [HttpPost("addMemberByEmail")]
-        public async Task<ActionResult> AddMemberByEmail(int groupId, string email)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetGroup(int id)
         {
-            try
-            {
-                await _groupService.AddMemberToGroupByEmailAsync(groupId, email);
-                return Ok("Member added successfully.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var groupDto = await _groupService.GetGroupByIdAsync(id);
+            if (groupDto == null)
+                return NotFound();
+
+            return Ok(groupDto);
         }
 
-        [HttpDelete("removeMember")]
-        public async Task<ActionResult> RemoveMemberByUserId(int groupId, int userId)
+        [HttpGet("event/{eventId}")]
+        public async Task<IActionResult> GetGroupByEventId(int eventId)
         {
-            try
-            {
-                await _groupService.RemoveMemberFromGroupAsync(groupId, userId);
-                return Ok("Member removed successfully.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var groupDto = await _groupService.GetGroupByEventIdAsync(eventId);
+            if (groupDto == null)
+                return NotFound();
+
+            return Ok(groupDto);
         }
+
     }
 }

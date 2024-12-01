@@ -8,11 +8,9 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<Group>> GetAllAsync();
         Task<Group?> GetByIdAsync(int id);
+        Task<Group?> GetGroupByEventIdAsync(int eventId);
         Task AddAsync(Group group);
         Task UpdateAsync(Group group);
         Task DeleteAsync(Group group);
-
-        Task AddMemberToGroupAsync(int groupId, int userId);
-        Task RemoveMemberFromGroupAsync(int groupId, int userId);
     }
 }

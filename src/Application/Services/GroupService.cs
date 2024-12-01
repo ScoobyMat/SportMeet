@@ -1,7 +1,9 @@
-﻿using Application.Interfaces;
+﻿using Application.Dtos.GroupDtos;
+using Application.Dtos.GroupMemberDtos;
+using Application.Interfaces;
+using AutoMapper;
+using Domain.Entities;
 using Domain.Interfaces;
-using System;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -9,58 +11,61 @@ namespace Application.Services
     {
         private readonly IGroupRepository _groupRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IGroupMemberService _groupMemberService;
+        private readonly IMapper _mapper;
 
-        public GroupService(IGroupRepository groupRepository, IUserRepository userRepository)
+        public GroupService(IGroupRepository groupRepository, IUserRepository userRepository,IGroupMemberService groupMemberService, IMapper mapper)
         {
             _groupRepository = groupRepository;
             _userRepository = userRepository;
+            _groupMemberService = groupMemberService;
+            _mapper = mapper;
         }
 
-        public async Task AddMemberToGroupByEmailAsync(int groupId, string email)
+        public async Task<GroupDto> CreateGroupAsync(GroupCreateDto groupCreateDto)
         {
-            var group = await _groupRepository.GetByIdAsync(groupId);
-            if (group == null)
-                throw new ArgumentException("Group not found");
+            var group = _mapper.Map<Group>(groupCreateDto);
 
-            var user = await _userRepository.GetByEmailAsync(email);
-            if (user == null)
-                throw new ArgumentException("User not found");
+            await _groupRepository.AddAsync(group);
 
-            var existingMember = group.Members.Find(m => m.UserId == user.Id);
-            if (existingMember != null)
-                throw new ArgumentException("User is already a member of this group");
+            var addMemberDto = new AddMemberDto
+            {
+                GroupId = group.Id,
+                UserId = groupCreateDto.CreatedByUserId,
+                Role = "Manager"
+            };
 
-            await _groupRepository.AddMemberToGroupAsync(groupId, user.Id);
+            await _groupMemberService.AddMemberAsync(addMemberDto);
+
+            var groupDto = _mapper.Map<GroupDto>(group);
+            return groupDto;
         }
 
-        public async Task AddMemberToGroupByUserIdAsync(int groupId, int userId)
+
+        public Task<GroupDto> DeleteGroupAsync(int groupId)
         {
-            var group = await _groupRepository.GetByIdAsync(groupId);
-            if (group == null)
-                throw new ArgumentException("Group not found");
-
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null)
-                throw new ArgumentException("User not found");
-
-            var existingMember = group.Members.Find(m => m.UserId == user.Id);
-            if (existingMember != null)
-                throw new ArgumentException("User is already a member of this group");
-
-            await _groupRepository.AddMemberToGroupAsync(groupId, userId);
+            throw new NotImplementedException();
         }
 
-        public async Task RemoveMemberFromGroupAsync(int groupId, int userId)
+        public async Task<GroupDto?> GetGroupByEventIdAsync(int eventId)
+        {
+            var group = await _groupRepository.GetGroupByEventIdAsync(eventId);
+            return _mapper.Map<GroupDto>(group);
+        }
+
+        public async Task<GroupDto?> GetGroupByIdAsync(int groupId)
         {
             var group = await _groupRepository.GetByIdAsync(groupId);
-            if (group == null)
-                throw new ArgumentException("Group not found");
+            return _mapper.Map<GroupDto>(group);
+        }
 
-            var existingMember = group.Members.Find(m => m.UserId == userId);
-            if (existingMember == null)
-                throw new ArgumentException("User is not a member of this group");
+        public async Task<IEnumerable<GroupDto>> GetAllGroupsAsync()
+        {
+            var groups = await _groupRepository.GetAllAsync();
 
-            await _groupRepository.RemoveMemberFromGroupAsync(groupId, userId);
+            var groupDtos = _mapper.Map<IEnumerable<GroupDto>>(groups);
+
+            return groupDtos;
         }
     }
 }

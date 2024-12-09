@@ -29,6 +29,13 @@ namespace API.Controllers
             return Ok(eventDto);
         }
 
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetFilteredEvents([FromQuery] string? location, [FromQuery] DateOnly? startDate, [FromQuery] DateOnly? endDate)
+        {
+            var events = await eventService.GetFilteredEventsAsync(location, startDate, endDate);
+            return Ok(events);
+        }
+
         [HttpPost]
         public async Task<ActionResult<EventDto>> AddEvent([FromBody] EventCreateDto eventDto)
         {
@@ -39,6 +46,19 @@ namespace API.Controllers
             }
 
             return CreatedAtAction(nameof(GetEvent), new { id = result.Id }, result);
+        }
+
+        [HttpGet("upcoming-events/{userId}")]
+        public async Task<IActionResult> GetUpcomingEventsForUser(int userId)
+        {
+            var events = await eventService.GetUpcomingEventsForUserAsync(userId);
+
+            if (events == null || !events.Any())
+            {
+                return NotFound("No upcoming events found for this user.");
+            }
+
+            return Ok(events);
         }
 
         [HttpPut]

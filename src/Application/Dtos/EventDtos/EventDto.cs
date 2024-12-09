@@ -11,7 +11,8 @@ public class EventDto : IMap
     public required string SportType { get; set; }
     public required string Address { get; set; }
     public required string City { get; set; }
-    public required DateTime Date { get; set; }
+    public required DateOnly Date { get; set; }
+    public required TimeSpan Time { get; set; }
     public int CreatedByUserId { get; set; }
     public GroupDto Group { get; set; } = null!;
 

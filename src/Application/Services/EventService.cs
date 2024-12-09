@@ -71,6 +71,25 @@ namespace Application.Services
             return eventDto;
         }
 
+        public async Task<List<EventDto>> GetFilteredEventsAsync(string? location, DateOnly? startDate, DateOnly? endDate)
+        {
+            var events = await _eventRepository.GetFilteredEventsAsync(location, startDate, endDate);
+
+            return _mapper.Map<List<EventDto>>(events);
+        }
+
+        public async Task<IEnumerable<EventDto>> GetUpcomingEventsForUserAsync(int userId)
+        {
+            var events = await _eventRepository.GetUpcomingEventsForUserAsync(userId);
+
+            if (events == null || !events.Any())
+            {
+                return null;
+            }
+
+            return _mapper.Map<IEnumerable<EventDto>>(events);
+        }
+
         public async Task<bool> UpdateEventAsync(EventUpdateDto eventUpdateDto)
         {
             var eventToUpdate = await _eventRepository.GetByIdAsync(eventUpdateDto.Id);

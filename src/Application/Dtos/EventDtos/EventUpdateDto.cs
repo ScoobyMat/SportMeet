@@ -12,7 +12,8 @@ namespace Application.Dtos.EventDtos
         public string? SportType { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }
-        public DateTime? Date { get; set; }
+        public DateOnly? Date { get; set; }
+        public TimeSpan? Time { get; set; }
 
         public void Mapping(Profile profile)
         {

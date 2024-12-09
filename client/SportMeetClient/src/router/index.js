@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
+import EventDetails from '@/components/EventDetails.vue';
 import Home from '@/pages/Home.vue';
 import Login from '@/pages/Login.vue';
 import Register from '@/pages/Register.vue';
@@ -8,30 +9,22 @@ import UserProfile from '@/pages/UserProfile.vue';
 
 const routes = [
     {
-      path: '/login',
-      name: 'Logowanie',
-      component: Login,
+      path: '/login', name: 'Login', component: Login,
     },
     {
-        path: '/register',
-        name: 'Rejestracja',
-        component: Register,
-      },
-    {
-      path: '/',
-      name: 'Home',
-      component: Home,
+        path: '/register', name: 'Register', component: Register,
     },
     {
-      path: '/profile',
-      name: 'Profil',
-      component: UserProfile,
-      meta: { requiresAuth: true },
+      path: '/', name: 'Home', component: Home,
     },
     {
-      path: '/events',
-      name: 'wydarzenia',
-      component: SearchEvent,
+      path: '/profile', name: 'Profile', component: UserProfile, meta: { requiresAuth: true },
+    },
+    {
+      path: '/events', name: 'Events', component: SearchEvent,
+    },
+    {
+      path: '/events/:id', name: 'EventDetails', component: EventDetails, props: true,
     },
   ];
 

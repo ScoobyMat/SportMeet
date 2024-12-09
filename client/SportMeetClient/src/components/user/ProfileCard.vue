@@ -1,6 +1,6 @@
 <template>
     <img
-  :src="user.photoUrl || userImage"
+  :src="photoUrl || userImage"
   alt="userPhoto"
   class="card-img-top"
 />
@@ -29,6 +29,8 @@
   
 <script setup>
 import userImage from '@/assets/image/user.png';
+
+const photoUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTj-mz--RrBmFB_O1s36EQYyQuc2IunZgZhBg&s";
 
 const props = defineProps({
   user: {

@@ -1,13 +1,13 @@
 import axios from 'axios';
 
-const baseUrl = 'https://localhost:7147/api/';
+const API_URL = 'https://localhost:7147/api/Account/';
 
 const AccountService = {
   currentUser: JSON.parse(localStorage.getItem('user')) || null,
 
   async login(model) {
     try {
-      const response = await axios.post(`${baseUrl}Account/login`, model);
+      const response = await axios.post(`${API_URL}login`, model);
       if (response && response.data) {
         this.setCurrentUser(response.data);
         return response.data;
@@ -20,7 +20,7 @@ const AccountService = {
 
   async register(model) {
     try {
-      const response = await axios.post(`${baseUrl}Account/register`, model);
+      const response = await axios.post(`${API_URL}register`, model);
       if (response && response.data) {
         this.setCurrentUser(response.data);
       }

@@ -1,4 +1,4 @@
-﻿namespace Application.Dtos.Auth
+﻿namespace Application.Dtos.Authentication
 {
     public class LoginDto
     {
@@ -6,3 +6,4 @@
         public required string Password { get; set; }
     }
 }
+

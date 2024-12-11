@@ -3,7 +3,7 @@ using AutoMapper;
 using Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace Application.Dtos.Auth
+namespace Application.Dtos.Authentication
 {
     public class RegisterDto : IMap
     {

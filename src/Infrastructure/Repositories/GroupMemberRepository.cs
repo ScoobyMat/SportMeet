@@ -20,16 +20,11 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task RemoveMemberAsync(int groupId, int userId)
+        public async Task RemoveMemberAsync(GroupMember groupMember)
         {
-            var groupMember = await _context.GroupMembers
-                .FirstOrDefaultAsync(m => m.GroupId == groupId && m.UserId == userId);
 
-            if (groupMember != null)
-            {
-                _context.GroupMembers.Remove(groupMember);
-                await _context.SaveChangesAsync();
-            }
+            _context.GroupMembers.Remove(groupMember);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<GroupMember?> GetMemberByIdAsync(int memberId)

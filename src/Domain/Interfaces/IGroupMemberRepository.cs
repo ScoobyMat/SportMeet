@@ -7,6 +7,6 @@ namespace Domain.Interfaces
         Task<GroupMember?> GetMemberByIdAsync(int memberId);
         Task AddMemberAsync(GroupMember groupMember);
         Task UpdateMemberAsync(GroupMember groupMember);
-        Task RemoveMemberAsync(int groupId, int userId);
+        Task RemoveMemberAsync(GroupMember groupMember);
     }
 }

@@ -11,7 +11,7 @@ public static class DependencyInjection
     {
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
         services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IAccountService, AccountService>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<IGroupService, GroupService>();

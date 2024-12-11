@@ -5,6 +5,7 @@
         public required string EventName { get; set; }
         public string? Description { get; set; }
         public required string SportType { get; set; }
+        public required int MaxParticipants { get; set; }
         public required string Address { get; set; }
         public required string City { get; set; }
         public required DateOnly Date { get; set; }
@@ -14,5 +15,6 @@
         public User CreatedByUser { get; set; } = null!;
 
         public Group Group { get; set; } = null!;
+        public Photo? EventPhoto { get; set; }
     }
 }

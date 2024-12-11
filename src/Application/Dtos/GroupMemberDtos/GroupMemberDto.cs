@@ -2,7 +2,7 @@
 using AutoMapper;
 using Domain.Entities;
 
-namespace Application.Dtos.GroupDtos
+namespace Application.Dtos.GroupMemberDtos
 {
     public class GroupMemberDto : IMap
     {

@@ -3,7 +3,7 @@ using AutoMapper;
 using Application.Mappings;
 using Domain.Entities;
 
-namespace Application.Dtos.Auth
+namespace Application.Dtos.Authentication
 {
     public class AuthResponseDto : IMap
     {

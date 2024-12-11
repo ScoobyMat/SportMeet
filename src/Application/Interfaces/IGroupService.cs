@@ -1,8 +1,4 @@
-﻿using Application.Dtos.EventDtos;
-using Application.Dtos.GroupDtos;
-using Application.Dtos.GroupMemberDtos;
-using Domain.Entities;
-using System.Threading.Tasks;
+﻿using Application.Dtos.GroupDtos;
 
 namespace Application.Interfaces
 {
@@ -12,5 +8,6 @@ namespace Application.Interfaces
         Task<GroupDto?> GetGroupByIdAsync(int groupId);
         Task<GroupDto?> GetGroupByEventIdAsync(int eventId);
         Task<GroupDto> CreateGroupAsync(GroupCreateDto groupCreateDto);
+
     }
 }

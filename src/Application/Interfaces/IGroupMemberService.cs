@@ -11,7 +11,7 @@ namespace Application.Interfaces
     public interface IGroupMemberService
     {
         Task AddMemberAsync(AddMemberDto addMemberDto);
-        Task<bool> RemoveMemberAsync(RemoveMemberDto removeMemberDto);
-        Task<bool> UpdateManagerAsync(GroupUpdateDto groupUpdateDto);
+        Task RemoveMemberAsync(RemoveMemberDto removeMemberDto);
+        Task UpdateManagerAsync(GroupUpdateDto groupUpdateDto);
     }
 }

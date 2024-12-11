@@ -2,61 +2,86 @@ using Application.Dtos.UserDtos;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-
-//[Authorize]
-public class UsersController(IUserService userService) : BaseApiController
+namespace API.Controllers
 {
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+    // [Authorize]
+    public class UsersController : BaseApiController
     {
-        var users = await userService.GetAllUsersAsync();
+        private readonly IUserService _userService;
 
-        return Ok(users);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetUser(int id)
-    {
-        var user = await userService.GetUserByIdAsync(id);
-        if (user == null) return NotFound();
-        return Ok(user);
-    }
-
-    [HttpGet("userEmail/{email}")]
-    public async Task<ActionResult<UserDto>> GetUser(string email)
-    {
-        var user = await userService.GetUserByEmailAsync(email);
-        if (user == null) return NotFound();
-        return Ok(user);
-    }
-
-    [HttpPut]
-    public async Task<ActionResult> UpdateUser(UserUpdateDto userUpdateDto)
-    {
-        var success = await userService.UpdateUserAsync(userUpdateDto);
-
-        if (!success)
+        public UsersController(IUserService userService)
         {
-            return NotFound("User not found.");
+            _userService = userService;
         }
 
-        return NoContent();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteUser(int id)
-    {
-        var success = await userService.DeleteUserAsync(id);
-
-        if (!success)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            return NotFound("User not found.");
+            try
+            {
+                var users = await _userService.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
-        return NoContent();
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserDto>> GetUser(int id)
+        {
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(id);
+                return Ok(user);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet("userEmail/{email}")]
+        public async Task<ActionResult<UserDto>> GetUser(string email)
+        {
+            try
+            {
+                var user = await _userService.GetUserByEmailAsync(email);
+                return Ok(user);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateUser(UserUpdateDto userUpdateDto)
+        {
+            try
+            {
+                await _userService.UpdateUserAsync(userUpdateDto);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteUser(int id)
+        {
+            try
+            {
+                await _userService.DeleteUserAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
     }
-
-
-
 }

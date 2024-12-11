@@ -1,91 +1,116 @@
-﻿using Application.Dtos;
-using Application.Dtos.EventDtos;
-using Application.Dtos.UserDtos;
+﻿using Application.Dtos.EventDtos;
 using Application.Interfaces;
-using Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class EventController(IEventService eventService) : BaseApiController
+    // [Authorize]
+    public class EventController : BaseApiController
     {
+        private readonly IEventService _eventService;
+
+        public EventController(IEventService eventService)
+        {
+            _eventService = eventService;
+        }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventDto>>> GetAllEvents()
         {
-            var events = await eventService.GetAllEventsAsync();
-            return Ok(events);
+            try
+            {
+                var events = await _eventService.GetAllEventsAsync();
+                return Ok(events);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<EventDto>> GetEvent(int id)
         {
-            var eventDto = await eventService.GetEventByIdAsync(id);
-
-            if (eventDto == null)
+            try
             {
-                return NotFound();
+                var eventDto = await _eventService.GetEventByIdAsync(id);
+                return Ok(eventDto);
             }
-
-            return Ok(eventDto);
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpGet("filter")]
         public async Task<IActionResult> GetFilteredEvents([FromQuery] string? location, [FromQuery] DateOnly? startDate, [FromQuery] DateOnly? endDate)
         {
-            var events = await eventService.GetFilteredEventsAsync(location, startDate, endDate);
-            return Ok(events);
+            try
+            {
+                var events = await _eventService.GetFilteredEventsAsync(location, startDate, endDate);
+                return Ok(events);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<EventDto>> AddEvent([FromBody] EventCreateDto eventDto)
         {
-            var result = await eventService.AddEventAsync(eventDto);
-            if (result == null)
+            try
             {
-                return BadRequest("Event creation failed.");
+                var result = await _eventService.AddEventAsync(eventDto);
+                return CreatedAtAction(nameof(GetEvent), new { id = result?.Id }, result);
             }
-
-            return CreatedAtAction(nameof(GetEvent), new { id = result.Id }, result);
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("upcoming-events/{userId}")]
         public async Task<IActionResult> GetUpcomingEventsForUser(int userId)
         {
-            var events = await eventService.GetUpcomingEventsForUserAsync(userId);
-
-            if (events == null || !events.Any())
+            try
             {
-                return NotFound("No upcoming events found for this user.");
+                var events = await _eventService.GetUpcomingEventsForUserAsync(userId);
+                return Ok(events);
             }
-
-            return Ok(events);
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
-        [HttpPut]
-        public async Task<ActionResult> UpdateUser(EventUpdateDto eventUpdate)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateEvent(int id, [FromBody] EventUpdateDto eventUpdate)
         {
-            var success = await eventService.UpdateEventAsync(eventUpdate);
-            if (!success)
+            try
             {
-                return NotFound("Event not found.");
+                eventUpdate.Id = id;
+                await _eventService.UpdateEventAsync(eventUpdate);
+                return NoContent();
             }
-
-            return NoContent();
-
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteUser(int id)
+        public async Task<ActionResult> DeleteEvent(int id)
         {
-
-            var success = await eventService.DeleteEventAsync(id);
-            if (!success)
+            try
             {
-                return NotFound("Event not found.");
+                await _eventService.DeleteEventAsync(id);
+                return NoContent();
             }
-
-            return NoContent();
-
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

@@ -1,58 +1,64 @@
 ﻿using Application.Dtos.GroupDtos;
 using Application.Dtos.GroupMemberDtos;
 using Application.Interfaces;
-using Application.Services;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class GroupMemberController(IGroupMemberService groupMemberService) : BaseApiController
+    // [Authorize]
+    public class GroupMemberController : ControllerBase
     {
+        private readonly IGroupMemberService _groupMemberService;
+
+        public GroupMemberController(IGroupMemberService groupMemberService)
+        {
+            _groupMemberService = groupMemberService;
+        }
+
         [HttpPost("AddMember")]
         public async Task<IActionResult> AddMember(AddMemberDto addMemberDto)
         {
             try
             {
-                await groupMemberService.AddMemberAsync(addMemberDto);
+                await _groupMemberService.AddMemberAsync(addMemberDto);
                 return Ok("Member added successfully.");
             }
-            catch (ArgumentException ex)
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
             }
         }
 
-        [HttpPut("UpdateMember")]
+        [HttpPut("UpdateManager")]
         public async Task<IActionResult> UpdateManager(GroupUpdateDto groupUpdateDto)
         {
-            var success = await groupMemberService.UpdateManagerAsync(groupUpdateDto);
-            if (!success)
-                return NotFound();
-
-            return NoContent();
+            try
+            {
+                await _groupMemberService.UpdateManagerAsync(groupUpdateDto);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
-        [HttpDelete("RemoveMembere")]
+        [HttpDelete("RemoveMember")]
         public async Task<IActionResult> RemoveMember(RemoveMemberDto removeMemberDto)
         {
-            var success = await groupMemberService.RemoveMemberAsync(removeMemberDto);
-            if (!success)
-                return NotFound();
-
-            return NoContent();
-
-            /*try
+            try
             {
-                await _groupService.RemoveMemberFromGroupAsync(groupId, userId);
-                return Ok("Member removed successfully.");
+                await _groupMemberService.RemoveMemberAsync(removeMemberDto);
+                return NoContent();
             }
-            catch (ArgumentException ex)
+            catch (KeyNotFoundException ex)
             {
-                return BadRequest(ex.Message);
-            }*/
+                return NotFound(ex.Message);
+            }
         }
-        
-
     }
 }

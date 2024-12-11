@@ -1,11 +1,10 @@
-﻿using Application.Dtos.Auth;
+﻿using Application.Dtos.Authentication;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    public class AccountController(IAccountService accountService) : BaseApiController
+    public class AuthController(IAuthenticationService accountService) : BaseApiController
     {
 
         [HttpPost("register")]

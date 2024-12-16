@@ -15,8 +15,7 @@ namespace Application.Dtos.Authentication
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<User, UserDto>()
-                .ForMember(dest => dest.PhotoUrl, opt => opt.MapFrom(src => src.ProfilePhoto == null ? null : src.ProfilePhoto.Url));
+            profile.CreateMap<User, UserDto>();
         }
     }
 }

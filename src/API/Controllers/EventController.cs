@@ -57,7 +57,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<EventDto>> AddEvent([FromBody] EventCreateDto eventDto)
+        public async Task<ActionResult<EventDto>> AddEvent([FromForm] EventCreateDto eventDto)
         {
             try
             {
@@ -84,12 +84,11 @@ namespace API.Controllers
             }
         }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateEvent(int id, [FromBody] EventUpdateDto eventUpdate)
+        [HttpPut]
+        public async Task<ActionResult> UpdateEvent([FromForm] EventUpdateDto eventUpdate)
         {
             try
             {
-                eventUpdate.Id = id;
                 await _eventService.UpdateEventAsync(eventUpdate);
                 return NoContent();
             }

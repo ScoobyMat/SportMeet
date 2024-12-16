@@ -21,7 +21,7 @@ namespace Application.Dtos.EventDtos
         public void Mapping(Profile profile)
         {
             profile.CreateMap<EventCreateDto, Event>()
-            .ForMember(dest => dest.EventPhoto, opt => opt.Ignore());
+                .ForMember(dest => dest.MaxParticipants, opt => opt.MapFrom(src => src.GroupSize));
         }
     }
 }

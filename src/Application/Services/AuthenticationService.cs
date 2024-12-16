@@ -38,7 +38,7 @@ namespace Application.Services
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                PhotoUrl = user.ProfilePhoto?.Url,
+                PhotoUrl = user.PhotoUrl,
                 Token = _tokenService.CreateToken(user)
             };
         }

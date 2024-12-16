@@ -8,7 +8,7 @@ namespace API.Installers
     {
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
-            var secretKey = configuration["JwtTokenKey"] ?? throw new Exception("TokenKey not found");
+            var secretKey = configuration["JWT:JwtTokenKey"] ?? throw new Exception("TokenKey not found");
             var key = Encoding.UTF8.GetBytes(secretKey);
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -33,6 +33,11 @@ namespace Application.Services
             if (existingMember != null)
                 throw new InvalidOperationException("User is already a member of the group.");
 
+            if (group.Members.Count >= group.MaxMembers)
+            {
+                throw new InvalidOperationException("Group is already full.");
+            }
+
             var groupMember = new GroupMember
             {
                 GroupId = addMemberDto.GroupId,

@@ -1,4 +1,3 @@
-using Application.Dtos.EventDtos;
 using Application.Dtos.UserDtos;
 using Application.Interfaces;
 using AutoMapper;
@@ -9,11 +8,13 @@ namespace Application.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPhotoService _photoService;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        public UserService(IUserRepository userRepository, IPhotoService photoService, IMapper mapper)
         {
             _userRepository = userRepository;
+            _photoService = photoService;
             _mapper = mapper;
         }
 
@@ -78,8 +79,33 @@ namespace Application.Services
                 throw new KeyNotFoundException($"User not found.");
             }
 
+            if (userUpdateDto.Photo != null)
+            {
+                if (!string.IsNullOrEmpty(user.PhotoPublicId))
+                {
+                    await _photoService.DeletePhotoAsync(user.PhotoPublicId);
+                }
+
+                var uploadResult = await _photoService.AddPhotoAsync(userUpdateDto.Photo, "user");
+
+                user.PhotoUrl = uploadResult.Url.ToString();
+                user.PhotoPublicId = uploadResult.PublicId;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(user.PhotoPublicId))
+                {
+                    await _photoService.DeletePhotoAsync(user.PhotoPublicId);
+
+                    user.PhotoUrl = null;
+                    user.PhotoPublicId = null;
+                }
+            }
+
             _mapper.Map(userUpdateDto, user);
+
             await _userRepository.UpdateAsync(user);
         }
+
     }
 }

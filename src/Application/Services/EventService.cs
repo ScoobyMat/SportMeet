@@ -10,27 +10,37 @@ namespace Application.Services
     public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
-        private readonly IGroupRepository _groupRepository;
         private readonly IGroupService _groupService;
+        private readonly IPhotoService _photoService;
         private readonly IMapper _mapper;
 
-        public EventService(IEventRepository eventRepository, IGroupRepository groupRepository, IGroupService groupService, IMapper mapper)
+        public EventService(IEventRepository eventRepository, IGroupService groupService, IPhotoService photoService, IMapper mapper)
         {
             _eventRepository = eventRepository;
-            _groupRepository = groupRepository;
             _groupService = groupService;
+            _photoService = photoService;
             _mapper = mapper;
         }
 
         public async Task<EventDto?> AddEventAsync(EventCreateDto eventDto)
         {
             var newEvent = _mapper.Map<Event>(eventDto);
+
+            if (eventDto.Photo != null)
+            {
+                var uploadResult = await _photoService.AddPhotoAsync(eventDto.Photo, "event");
+
+                newEvent.PhotoUrl = uploadResult.Url.ToString();
+                newEvent.PhotoPublicId = uploadResult.PublicId;
+            }
+
             await _eventRepository.AddAsync(newEvent);
 
             var groupCreateDto = new GroupCreateDto
             {
                 EventId = newEvent.Id,
                 CreatedByUserId = newEvent.CreatedByUserId,
+                MaxMembers = newEvent.MaxParticipants,
             };
 
             try
@@ -58,6 +68,16 @@ namespace Application.Services
             if (eventToDelete == null)
             {
                 throw new KeyNotFoundException($"Event not found.");
+            }
+
+            if (eventToDelete.PhotoPublicId != null)
+            {
+                await _photoService.DeletePhotoAsync(eventToDelete.PhotoPublicId);
+
+                eventToDelete.PhotoUrl = null;
+                eventToDelete.PhotoPublicId = null;
+
+                await _eventRepository.UpdateAsync(eventToDelete);
             }
 
             await _eventRepository.DeleteAsync(eventToDelete);
@@ -114,6 +134,19 @@ namespace Application.Services
             if (eventToUpdate == null)
             {
                 throw new InvalidOperationException($"Event not found.");
+            }
+
+            if (eventUpdateDto.Photo != null)
+            {
+                if (eventToUpdate.PhotoPublicId != null)
+                {
+                    await _photoService.DeletePhotoAsync(eventToUpdate.PhotoPublicId);
+                }
+
+                var uploadResult = await _photoService.AddPhotoAsync(eventUpdateDto.Photo, "event");
+
+                eventToUpdate.PhotoUrl = uploadResult.Url.ToString();
+                eventToUpdate.PhotoPublicId = uploadResult.PublicId;
             }
 
             _mapper.Map(eventUpdateDto, eventToUpdate);

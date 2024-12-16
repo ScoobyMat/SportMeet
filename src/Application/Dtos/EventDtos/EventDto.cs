@@ -14,19 +14,18 @@ namespace Application.Dtos.EventDtos
         public required string City { get; set; }
         public required DateOnly Date { get; set; }
         public required TimeSpan Time { get; set; }
-        public required int CreatedByUserId { get; set; }
+        public required string CreatedByUser { get; set; }
         public required int MaxMembers { get; set; }
         public required int CurrentMembers { get; set; }
         public required int GroupId { get; set; }
-        public string? EventPhotoUrl { get; set; }
+        public string? PhotoUrl { get; set; }
 
         public void Mapping(Profile profile)
         {
             profile.CreateMap<Event, EventDto>()
-                .ForMember(dest => dest.MaxMembers, opt => opt.MapFrom(src => src.Group.MaxMembers))
+                .ForMember(dest => dest.MaxMembers, opt => opt.MapFrom(src => src.MaxParticipants))
                 .ForMember(dest => dest.CurrentMembers, opt => opt.MapFrom(src => src.Group.Members.Count))
-                .ForMember(dest => dest.GroupId, opt => opt.MapFrom(src => src.Group.Id))
-                .ForMember(dest => dest.EventPhotoUrl, opt => opt.MapFrom(src => src.EventPhoto != null ? src.EventPhoto.Url : null));
+                .ForMember(dest => dest.CreatedByUser, opt => opt.MapFrom(src => $"{src.CreatedByUser.FirstName} {src.CreatedByUser.LastName}"));
         }
     }
 }

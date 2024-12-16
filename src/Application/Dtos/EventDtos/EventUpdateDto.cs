@@ -1,6 +1,7 @@
 ﻿using Application.Mappings;
 using AutoMapper;
 using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Dtos.EventDtos
 {
@@ -14,10 +15,12 @@ namespace Application.Dtos.EventDtos
         public string? City { get; set; }
         public DateOnly? Date { get; set; }
         public TimeSpan? Time { get; set; }
+        public IFormFile? Photo { get; set; }
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<EventUpdateDto, Event>();
+            profile.CreateMap<EventUpdateDto, Event>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

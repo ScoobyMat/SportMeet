@@ -1,4 +1,5 @@
 using API.Installers;
+using Domain.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 IConfiguration configuration = builder.Configuration;
 builder.Services.InstallServicesInAssembly(configuration);
+
+builder.Services.Configure<CloudinarySettings>
+    (builder.Configuration.GetSection("CloudinarySettings"));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

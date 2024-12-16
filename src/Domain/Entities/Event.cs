@@ -10,11 +10,12 @@
         public required string City { get; set; }
         public required DateOnly Date { get; set; }
         public required TimeSpan Time { get; set; }
+        public string? PhotoUrl { get; set; }
+        public string? PhotoPublicId { get; set; }
 
         public int CreatedByUserId { get; set; }
         public User CreatedByUser { get; set; } = null!;
 
         public Group Group { get; set; } = null!;
-        public Photo? EventPhoto { get; set; }
     }
 }

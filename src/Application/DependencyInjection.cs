@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<IGroupService, GroupService>();
         services.AddScoped<IGroupMemberService, GroupMemberService>();
+        services.AddScoped<IPhotoService, PhotoService>();
 
         return services;
     }

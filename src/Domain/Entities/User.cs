@@ -14,7 +14,8 @@ namespace Domain.Entities
         public required string Country { get; set; }
         public string? Description { get; set; }
         public string? PreferredSports { get; set; }
-        public Photo? ProfilePhoto { get; set; }
+        public string? PhotoUrl { get; set; }
+        public string? PhotoPublicId { get; set; }
 
         public int GetAge()
         {

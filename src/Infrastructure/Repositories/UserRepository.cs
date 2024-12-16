@@ -29,21 +29,18 @@ namespace Infrastructure.Repositories
         public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Users
-                .Include(u => u.ProfilePhoto)
                 .SingleOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<User?> GetByIdAsync(int userId)
         {
             return await _context.Users
-                .Include(u => u.ProfilePhoto)
                 .SingleOrDefaultAsync(u => u.Id == userId);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _context.Users
-                .Include(u => u.ProfilePhoto)
                 .ToListAsync();
         }
 

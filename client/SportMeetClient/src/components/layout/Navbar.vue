@@ -7,41 +7,48 @@
       </a>
 
       <ul class="navbar-nav me-auto mb-md-0">
-        <li class="nav-item">
-          <router-link to="/events" router-link-active="active" class="nav-link">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Wydarzenia
-          </router-link>
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
+            <li>
+              <router-link to="/events" class="dropdown-item">Przeglądaj wydarzenia w okolicy</router-link>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <router-link to="/create-event" class="dropdown-item">Zorganizuj wydarzenie</router-link>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <router-link to="/my-events" class="dropdown-item">Moje wydarzenia</router-link>
+            </li>
+          </ul>
         </li>
       </ul>
 
       <div v-if="isLoggedIn" class="dropdown">
-        
-        <img v-if="currentUser.photoUrl"
-          :src="currentUser.photoUrl"
-          alt="user main image"
-          width="40"
-          height="40"
-          class="me-3"
-        />
-        <img v-else
-          src="@/assets/image/user.png"
-          alt="user main image"
-          width="40"
-          height="40"
-          class="me-3"
-        />
 
-        <a class="dropdown-toggle text-light text-decoration-none" href="#" role="button" id="dropdownMenuLink"
-          data-bs-toggle="dropdown" aria-expanded="false">
+        <img v-if="currentUser.photoUrl" :src="currentUser.photoUrl" alt="user main image" width="40" height="40" class="me-3" />
+        <img v-else src="@/assets/image/user.png" alt="user main image" width="40" height="40" class="me-3" />
+
+        <a class="dropdown-toggle text-light text-decoration-none" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
           {{ currentUser.firstName }} {{ currentUser.lastName }}
         </a>
-        
+
         <ul class="dropdown-menu mt-3" aria-labelledby="dropdownMenuLink">
-          <li><router-link to="/profile" class="dropdown-item">Mój profil <i class="bi bi-person-square"></i></router-link></li>
+          <li>
+            <router-link to="/profile" class="dropdown-item">Mój profil <i class="bi bi-person-square"></i></router-link></li>
           <li>
             <hr class="dropdown-divider">
           </li>
-          <li><a class="dropdown-item" href="#" @click="logout">Wyloguj <i class="bi bi-box-arrow-left "></i></a></li>
+          <li>
+            <a class="dropdown-item" href="#" @click="logout">Wyloguj <i class="bi bi-box-arrow-left "></i></a>
+          </li>
         </ul>
       </div>
 
@@ -73,4 +80,12 @@ const logout = () => {
 </script>
 
 <style scoped>
+.dropdown-menu {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item:hover {
+  background-color: #343a40;
+  color: white
+}
 </style>

@@ -1,77 +1,110 @@
 <template>
-    <div class="container d-flex justify-content-center align-items-center">
-        <div class="col-md-6">
-            <h2 class="text-center">Rejestracja</h2>
-            <hr />
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="card">
+                <img src="/logo.png" alt="Logo" width="100"/>
+            <h2>Rejestracja</h2>
 
-            <form @submit.prevent="register">
-                <div class="form-floating mb-3">
-                    <input type="text" id="firstName" v-model="form.firstName" class="form-control" placeholder="Imię"
-                        required />
-                    <label for="firstName">Imię</label>
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="text" id="lastName" v-model="form.lastName" class="form-control" placeholder="Nazwisko"
-                        required />
-                    <label for="lastName">Nazwisko</label>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label d-block">Płeć</label>
-                    <div>
-                        <input type="radio" id="male" value="Mężczyzna" v-model="form.gender" class="form-check-input"
-                            required />
-                        <label for="male" class="form-check-label ms-2 me-5">Mężczyzna</label>
-
-                        <input type="radio" id="female" value="Kobieta" v-model="form.gender" class="form-check-input"
-                            required />
-                        <label for="female" class="form-check-label ms-2">Kobieta</label>
+            <form @submit.prevent="register" class="needs-validation" novalidate>
+                <div class="input-group mt-4 mb-4">
+                    <span class="input-group-text fs-4"><i class="bi bi-person"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input type="text" id="firstName" v-model="form.firstName" class="form-control" placeholder="Imię" required
+                            :class="{ 'is-invalid': !form.firstName && submitted, 'is-valid': form.firstName && submitted }" />
+                        <label for="firstName">Imię</label>
+                        <div class="invalid-feedback">Proszę podać imię.</div>
                     </div>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <input type="date" id="dateOfBirth" v-model="form.dateOfBirth" class="form-control"
-                        placeholder="Data urodzenia" required />
-                    <label for="dateOfBirth">Data urodzenia</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text fs-4"><i class="bi bi-person"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input type="text" id="lastName" v-model="form.lastName" class="form-control" placeholder="Nazwisko" required
+                            :class="{ 'is-invalid': !form.lastName && submitted, 'is-valid': form.lastName && submitted }" />
+                        <label for="lastName">Nazwisko</label>
+                        <div class="invalid-feedback">Proszę podać nazwisko.</div>
+                    </div>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <input type="text" id="city" v-model="form.city" class="form-control" placeholder="Miasto"
-                        required />
-                    <label for="city">Miasto</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text fs-4"><i class="bi bi-gender-ambiguous"></i></span>
+                    <select id="gender" v-model="form.gender" class="form-select" required
+                        :class="{ 'is-invalid': !form.gender && submitted, 'is-valid': form.gender && submitted }">
+                        <option value="" disabled selected>Wybierz płeć</option>
+                        <option value="Mężczyzna">Mężczyzna</option>
+                        <option value="Kobieta">Kobieta</option>
+                    </select>
+                    <div class="invalid-feedback">Proszę wybrać płeć.</div>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <input type="text" id="country" v-model="form.country" class="form-control" placeholder="Państwo"
-                        required />
-                    <label for="country">Państwo</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text fs-4"><i class="bi bi-calendar"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input type="date" id="dateOfBirth" v-model="form.dateOfBirth" class="form-control" placeholder="Data urodzenia" required
+                            :class="{ 'is-invalid': !form.dateOfBirth && submitted, 'is-valid': form.dateOfBirth && submitted }" />
+                        <label for="dateOfBirth">Data urodzenia</label>
+                        <div class="invalid-feedback">Proszę podać datę urodzenia.</div>
+                    </div>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <input type="email" id="email" v-model="form.email" class="form-control" placeholder="Email"
-                        required />
-                    <label for="email">Email</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text fs-4"><i class="bi bi-building"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input type="text" id="city" v-model="form.city" class="form-control" placeholder="Miasto" required
+                            :class="{ 'is-invalid': !form.city && submitted, 'is-valid': form.city && submitted }" />
+                        <label for="city">Miasto</label>
+                        <div class="invalid-feedback">Proszę podać miasto.</div>
+                    </div>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <input type="password" id="password" v-model="form.password" class="form-control"
-                        placeholder="Hasło" required />
-                    <label for="password">Hasło</label>
-                    <div class="form-text">Hasło powinno mieć minimum 8 znaków.</div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text fs-4"><i class="bi bi-globe"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input type="text" id="country" v-model="form.country" class="form-control" placeholder="Państwo" required
+                            :class="{ 'is-invalid': !form.country && submitted, 'is-valid': form.country && submitted }" />
+                        <label for="country">Państwo</label>
+                        <div class="invalid-feedback">Proszę podać państwo.</div>
+                    </div>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <input type="password" id="confirmPassword" v-model="form.confirmPassword" class="form-control"
-                        placeholder="Potwierdź Hasło" required />
-                    <label for="confirmPassword">Potwierdź Hasło</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text fs-4"><i class="bi bi-envelope"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input type="email" id="email" v-model="form.email" class="form-control" placeholder="Email" required
+                            :class="{ 'is-invalid': !form.email && submitted, 'is-valid': form.email && submitted }" />
+                        <label for="email">Email</label>
+                        <div class="invalid-feedback">Proszę podać poprawny adres email.</div>
+                    </div>
                 </div>
 
-                <div v-if="checkPassword" class="alert alert-danger">
-                    Hasła się nie zgadzają!
+                <div class="input-group mb-3">
+                    <span class="input-group-text fs-4"><i class="bi bi-lock"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input type="password" id="password" v-model="form.password" class="form-control" placeholder="Hasło" required minlength="8" :class="{
+                            'is-invalid': (submitted && (!form.password || form.password.length < 8)),
+                            'is-valid': (submitted && form.password && form.password.length >= 8)
+                        }" />
+                        <label for="password">Hasło</label>
+                        <div class="invalid-feedback">
+                            Hasło musi mieć co najmniej 8 znaków.
+                        </div>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100" :disabled="isSubmitting">
+                <div class="input-group mb-3">
+                    <span class="input-group-text fs-4"><i class="bi bi-lock"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input type="password" id="confirmPassword" v-model="form.confirmPassword" class="form-control" placeholder="Potwierdź Hasło" required :class="{
+                            'is-invalid': (submitted && (checkPassword || !form.confirmPassword)),
+                            'is-valid': (submitted && !checkPassword && form.confirmPassword)
+                        }" />
+                        <label for="confirmPassword">Potwierdź Hasło</label>
+                        <div class="invalid-feedback">
+                            Hasła się nie zgadzają!
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 mb-4" :disabled="isSubmitting">
                     Utwórz konto
                 </button>
             </form>
@@ -83,9 +116,8 @@
     </div>
 </template>
 
-
 <script setup>
-import accountService from '@/services/accountService';
+import AuthenticationService from '@/services/AuthenticationService';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -105,30 +137,35 @@ const form = ref({
 
 const errorMessage = ref('');
 const isSubmitting = ref(false);
+const submitted = ref(false);
 
 const checkPassword = computed(() => {
     return form.value.password !== form.value.confirmPassword;
 });
 
 const register = async () => {
+    submitted.value = true;
     errorMessage.value = '';
     isSubmitting.value = true;
 
-    if (checkPassword.value) {
-        errorMessage.value = 'Hasła się nie zgadzają!';
+    if (checkPassword.value || form.value.password.length < 8) {
         isSubmitting.value = false;
         return;
     }
 
     try {
-        const response = await accountService.register(form.value);
+        const response = await AuthenticationService.register(form.value);
         router.push('/login');
     } catch (error) {
-        errorMessage.value = 'Wystąpił błąd. Spróbuj ponownie!';
+        errorMessage.value = error.message;
     } finally {
         isSubmitting.value = false;
     }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.card{
+    width: 60%;
+}
+</style>

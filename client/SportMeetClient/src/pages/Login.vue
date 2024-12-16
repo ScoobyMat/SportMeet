@@ -1,41 +1,46 @@
 <template>
-    <div class="container d-flex justify-content-center align-items-center">
-        <div class="col-md-6">
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="card">
+                <img src="/logo.png" alt="Logo"/>
             <h2 class="text-center">Logowanie</h2>
-            <hr>
+
             <form @submit.prevent="login">
-            <div class="form-floating mb-3">
-                <input
-                id="email"
-                v-model="loginData.email"
-                class="form-control"
-                placeholder="Email"
-                type="email"
-                />
-                <label for="email">Email</label>
-            </div>
+                <div class="input-group mt-4 mb-4">
+                    <span class="input-group-text fs-4"><i class="bi bi-envelope"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input id="email" v-model="loginData.email" class="form-control" placeholder="Email"
+                            type="email" />
+                        <label for="email">Email</label>
+                    </div>
+                </div>
 
-            <div class="form-floating mb-3">
-                <input
-                id="password"
-                v-model="loginData.password"
-                class="form-control"
-                type="password"
-                placeholder="Hasło"
-                />
-                <label for="password">Hasło</label>
-            </div>
+                <div class="input-group mb-4">
+                    <span class="input-group-text fs-4"><i class="bi bi-lock"></i></span>
+                    <div class="form-floating flex-grow-1">
+                        <input id="password" v-model="loginData.password" class="form-control"
+                            :type="showPassword ? 'text' : 'password'" placeholder="Hasło" />
+                        <label for="password">Hasło</label>
+                    </div>
+                    <span class="input-group-text fs-4 cursor-pointer" @click="togglePasswordVisibility">
+                        <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                    </span>
+                </div>
 
-            <button type="submit" class="btn btn-primary">Zaloguj się</button>
+                <button type="submit" class="btn btn-primary btn-lg w-100 mb-4">Zaloguj się</button>
+
+                <p class="text-center">
+                    <a href="/register" class="text-decoration-none">Nie masz konta? Zarejestruj się</a>
+                </p>
             </form>
-
-            <p v-if="errorMessage" class="text-danger mt-3">{{ errorMessage }}</p>
+            <p v-if="errorMessage" class="text-danger mt-3 text-center">{{ errorMessage }}</p>
         </div>
     </div>
 </template>
 
+
+
 <script setup>
-import accountService from '@/services/accountService';
+import AuthenticationService from '@/services/AuthenticationService';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -45,6 +50,7 @@ const loginData = ref({
 });
 
 const errorMessage = ref('');
+const showPassword = ref(false);
 
 const router = useRouter();
 
@@ -52,15 +58,22 @@ const login = async () => {
     errorMessage.value = '';
 
     try {
-        const user = await accountService.login(loginData.value);
+        const user = await AuthenticationService.login(loginData.value);
         if (user) {
-        router.push('/');
+            router.push('/');
         }
     } catch (error) {
-        errorMessage.value = 'Błąd logowania. Sprawdź dane i spróbuj ponownie.';
+        errorMessage.value = error.message;
     }
+};
+
+const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value;
 };
 </script>
 
 <style scoped>
+.card{
+    width: 60%;
+}
 </style>

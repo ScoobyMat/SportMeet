@@ -19,7 +19,7 @@
               <hr class="dropdown-divider">
             </li>
             <li>
-              <router-link to="/create-event" class="dropdown-item">Zorganizuj wydarzenie</router-link>
+              <router-link to="/event/create" class="dropdown-item">Zorganizuj wydarzenie</router-link>
             </li>
             <li>
               <hr class="dropdown-divider">
@@ -32,9 +32,8 @@
       </ul>
 
       <div v-if="isLoggedIn" class="dropdown">
-
         <img v-if="currentUser.photoUrl" :src="currentUser.photoUrl" alt="user main image" width="40" height="40" class="me-3" />
-        <img v-else src="@/assets/image/user.png" alt="user main image" width="40" height="40" class="me-3" />
+        <img v-else src="@/assets/image/user.png" alt="User profile image" width="40" height="40" class="me-3" />
 
         <a class="dropdown-toggle text-light text-decoration-none" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
           {{ currentUser.firstName }} {{ currentUser.lastName }}
@@ -42,7 +41,8 @@
 
         <ul class="dropdown-menu mt-3" aria-labelledby="dropdownMenuLink">
           <li>
-            <router-link to="/profile" class="dropdown-item">Mój profil <i class="bi bi-person-square"></i></router-link></li>
+            <router-link to="/profile" class="dropdown-item">Mój profil <i class="bi bi-person-square"></i></router-link>
+          </li>
           <li>
             <hr class="dropdown-divider">
           </li>
@@ -65,17 +65,16 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { useUserStore } from '@/stores/userStore';
+import { computed } from 'vue';
 
-const currentUser = ref(JSON.parse(localStorage.getItem('user')));
+const userStore = useUserStore();
 
-const isLoggedIn = computed(() => {
-  return currentUser.value !== null;
-});
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.currentUser !== null);
 
 const logout = () => {
-  localStorage.removeItem('user');
-  currentUser.value = null;
+  userStore.logout();
 };
 </script>
 
@@ -86,6 +85,6 @@ const logout = () => {
 
 .dropdown-item:hover {
   background-color: #343a40;
-  color: white
+  color: white;
 }
 </style>

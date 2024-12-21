@@ -1,25 +1,30 @@
 <template>
     <div class="modal-overlay " @click.self="close">
         <div class="modal-content">
-            <img src="@/assets/image/logo.png" alt="Logo" class="event-img" />
+            <img :src="event?.photoUrl || sportImages[event.sportType]" alt="Event Photo" class="event-img">
             <div class="event-details">
-                <h5>{{ event.eventName }}</h5>
-                <p><strong>Twórca:</strong> {{ event.creatorName }}</p>
+                <h3>{{ event.eventName }}</h3>
                 <p><strong>Sport:</strong> {{ event.sportType }}</p>
                 <p><strong>Opis:</strong> {{ event.description }}</p>
-                <p><strong>Lokalizacja:</strong> {{ event.location }}, {{ event.city }}</p>
-                <p><strong>Data:</strong> {{ event.date }} | <strong>Godzina:</strong> {{ event.time }}</p>
-                <p><strong>Liczba miejsc:</strong> {{ event.availableSeats }}</p>
-
+                <p><strong>Gdzie:</strong> {{ event.address }}, {{ event.city }}</p>
+                <p><strong>Kiedy:</strong> {{ event.date }} | {{ event.time }}</p>
+                <p><strong>Liczba miejsc:</strong> {{ event.currentMembers}}/{{ event.maxMembers }}</p>
+                <p><strong>Orgaznizator:</strong> {{ event.createdByUser }}</p>
                 {{ event.group }}
-
-                <button class="btn btn-primary" @click="joinEvent">Dołącz</button>
+                <button class="btn btn-primary"  @click="joinEvent(event.id)">Dołącz</button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
+import { sportImages } from '@/constants/sports';
+import { useRouter } from 'vue-router';
+
+
+const router = useRouter();
+
+
 
 const props = defineProps({
     event: Object,
@@ -31,9 +36,8 @@ const close = () => {
     emit("close");
 };
 
-const joinEvent = () => {
-    console.log("Dołączono do wydarzenia:", props.event);
-    alert("Dołączyłeś do wydarzenia!");
+const joinEvent = (eventId) => {
+    router.push({ name: 'EventGroup',params: {eventId: eventId} });
 };
 </script>
 

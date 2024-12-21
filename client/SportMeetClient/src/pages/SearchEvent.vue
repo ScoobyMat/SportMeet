@@ -1,35 +1,46 @@
 <template>
     <div class="row">
         <div class="col-md-8 card p-3 mb-4">
-            <h2>Filtruj wydarzenia</h2>
-
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="location" class="form-label">Miasto</label>
-                    <input v-model="filters.location" type="text" id="location" class="form-control"
-                        placeholder="Wpisz nazwę miasta" />
+            <div class="FilterBox">
+                <h2>Filtruj wydarzenia</h2>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="location" class="form-label">Miasto</label>
+                        <input v-model="filters.location" type="text" id="location" class="form-control"
+                            placeholder="Wpisz nazwę miasta" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="sportType" class="form-label">Sport</label>
+                        <select v-model="filters.sportType" id="sportType" class="form-select">
+                            <option value="" disabled selected>Wybierz sport</option>
+                            <option v-for="sport in availableSports" :key="sport" :value="sport">
+                                {{ sport }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="startDate" class="form-label">Data początkowa</label>
+                        <input v-model="filters.startDate" type="date" id="startDate" class="form-control" />
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="endDate" class="form-label">Data końcowa</label>
+                        <input v-model="filters.endDate" type="date" id="endDate" class="form-control" />
+                    </div>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label for="startDate" class="form-label">Data początkowa</label>
-                    <input v-model="filters.startDate" type="date" id="startDate" class="form-control" />
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label for="endDate" class="form-label">Data końcowa</label>
-                    <input v-model="filters.endDate" type="date" id="endDate" class="form-control" />
-                </div>
+                <button @click="applyFilters" class="btn btn-primary">Filtruj wydarzenia</button>
             </div>
-
-            <button @click="applyFilters" class="btn btn-primary">Filtruj wydarzenia</button>
-
             <div class="row">
                 <div class="col-md-2 mt-2" v-for="event in events" :key="event.id">
-                    <div class="event-card" @click="openEventDetails(event)">
-                        <img :src="event.imageUrl || 'https://cdn.open-pr.com/V/a/Va07962746_g.jpg'"
-                            class="card-img-top" alt="Event Image">
-                        <h5>{{ event.eventName }}</h5>
-                        <p>Data: {{ event.date }}</p>
-                        <p>Godzina: {{ event.time }}</p>
-                        <p>Miasto: {{ event.city }}</p>
+                    <div class="event-card">
+                        <div class="Details" @click="openEventDetails(event)">
+                            <img :src="event.photoUrl || sportImages[event.sportType]" class="card-img-top"
+                                alt="Event Image">
+                            <h5>{{ event.eventName }}</h5>
+                            <p>Data: {{ event.date }}</p>
+                            <p>Godzina: {{ event.time }}</p>
+                            <p>Miasto: {{ event.city }}</p>
+                        </div>
+                        <button class="btn btn-primary" @click="joinEvent(event.id)"> Dołącz </button>
                     </div>
                 </div>
             </div>
@@ -39,19 +50,26 @@
             <h2 class="text-center p-2">Mapa wydarzeń:</h2>
             <HereMap :center="center" />
         </div>
-
-        <EventModal v-if="selectedEvent" :event="selectedEvent" @close="selectedEvent = null" />
+        <EventDetails v-if="selectedEvent" :event="selectedEvent" @close="selectedEvent = null" />
     </div>
 </template>
 
 <script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+import { sportImages } from '@/constants/sports';
+import { availableSports } from '@/constants/sports.js';
 import EventService from "@/services/EventService";
-import { onMounted, ref } from "vue";
-import EventModal from "../components/EventDetails.vue";
+import { onMounted } from "vue";
+import EventDetails from "../components/EventDetails.vue";
 import HereMap from "../components/Map/HereMap.vue";
 
 const filters = ref({
     location: "",
+    sportType: '',
     startDate: "",
     endDate: "",
 });
@@ -82,6 +100,10 @@ const applyFilters = async () => {
     }
 };
 
+const joinEvent = (eventId) => {
+    router.push({ name: 'EventGroup', params: { eventId: eventId } });
+};
+
 const openEventDetails = (event) => {
     selectedEvent.value = event;
 };
@@ -98,6 +120,10 @@ onMounted(() => {
     padding: 15px;
     cursor: pointer;
     transition: transform 0.2s;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .event-card:hover {
@@ -105,8 +131,16 @@ onMounted(() => {
 }
 
 .card-img-top {
-    width: 125px;
-    height: 125px;
-    margin-bottom: 10px;
+    object-fit: cover;
+}
+
+.event-card .btn {
+    margin-top: auto;
+}
+
+.FilterBox {
+    border: 1px solid white;
+    padding: 1rem;
+    width: 100%;
 }
 </style>

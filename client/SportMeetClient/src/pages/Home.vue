@@ -17,7 +17,7 @@
                 </button>
                 <div class="carousel">
                     <div v-for="event in pagedEvents" :key="event.id" class="eventBox">
-                        <img :src="event.imageUrl || eventPhoto" class="card-img-top" alt="Event Image">
+                        <img :src="event.photoUrl|| sportImages[event.sportType]" alt="Event Sport Image" class="card-img-top">
                         <h5>{{ event.eventName }}</h5>
                         <br>
                         <p>Data: {{ event.date }}</p>
@@ -37,11 +37,15 @@
     </div>
 </template>
 
-
 <script setup>
-import eventPhoto from '@/assets/image/eventPhoto.png';
-import EventService from "@/services/EventService";
-import { computed, onMounted, ref } from "vue";
+import EventService from '@/services/EventService';
+import { useUserStore } from '@/stores/userStore';
+import { computed, onMounted, ref } from 'vue';
+import { sportImages } from '@/constants/sports';
+
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.currentUser);
+const isLoggedIn = computed(() => userStore.currentUser !== null);
 
 const events = ref([]);
 const maxVisibleCards = 3;
@@ -63,9 +67,6 @@ const scrollRight = () => {
     }
 };
 
-const currentUser = ref(JSON.parse(localStorage.getItem("user")));
-const isLoggedIn = computed(() => currentUser.value !== null);
-
 const fetchEvents = async () => {
     if (!currentUser.value || !currentUser.value.id) {
         console.warn("No user logged in.");
@@ -73,7 +74,8 @@ const fetchEvents = async () => {
     }
 
     try {
-        events.value = await EventService.GetUpcomingEvents(currentUser.value.id);
+        const fetchedEvents = await EventService.GetUpcomingEvents(currentUser.value.id);
+        events.value = fetchedEvents.filter(event => event.sportType && event.eventName && event.date);
     } catch (error) {
         console.error("Failed to load events:", error.message);
     }

@@ -57,18 +57,20 @@ namespace API.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateUser(UserUpdateDto userUpdateDto)
+        public async Task<ActionResult<UserDto>> UpdateUser(UserUpdateDto userUpdateDto)
         {
             try
             {
-                await _userService.UpdateUserAsync(userUpdateDto);
-                return NoContent();
+                var updatedUser = await _userService.UpdateUserAsync(userUpdateDto);
+
+                return Ok(updatedUser);
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteUser(int id)

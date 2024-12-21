@@ -106,9 +106,9 @@ namespace Application.Services
             return eventDto;
         }
 
-        public async Task<List<EventDto>> GetFilteredEventsAsync(string? location, DateOnly? startDate, DateOnly? endDate)
+        public async Task<List<EventDto>> GetFilteredEventsAsync(string? location, string? sportType, DateOnly? startDate, DateOnly? endDate)
         {
-            var events = await _eventRepository.GetFilteredEventsAsync(location, startDate, endDate);
+            var events = await _eventRepository.GetFilteredEventsAsync(location, sportType, startDate, endDate);
             if (events == null || !events.Any())
             {
                 throw new InvalidOperationException("No events matched the given filter criteria.");

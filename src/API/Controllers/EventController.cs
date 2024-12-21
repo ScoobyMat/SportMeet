@@ -43,11 +43,11 @@ namespace API.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<IActionResult> GetFilteredEvents([FromQuery] string? location, [FromQuery] DateOnly? startDate, [FromQuery] DateOnly? endDate)
+        public async Task<IActionResult> GetFilteredEvents([FromQuery] string? location, [FromQuery] string? sportType, [FromQuery] DateOnly? startDate, [FromQuery] DateOnly? endDate)
         {
             try
             {
-                var events = await _eventService.GetFilteredEventsAsync(location, startDate, endDate);
+                var events = await _eventService.GetFilteredEventsAsync(location, sportType, startDate, endDate);
                 return Ok(events);
             }
             catch (InvalidOperationException ex)
@@ -57,7 +57,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<EventDto>> AddEvent([FromForm] EventCreateDto eventDto)
+        public async Task<ActionResult<EventDto>> AddEvent(EventCreateDto eventDto)
         {
             try
             {

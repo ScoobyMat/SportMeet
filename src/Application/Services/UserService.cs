@@ -70,7 +70,7 @@ namespace Application.Services
             return userDtos;
         }
 
-        public async Task UpdateUserAsync(UserUpdateDto userUpdateDto)
+        public async Task<UserDto> UpdateUserAsync(UserUpdateDto userUpdateDto)
         {
             var user = await _userRepository.GetByIdAsync(userUpdateDto.Id);
 
@@ -78,7 +78,6 @@ namespace Application.Services
             {
                 throw new KeyNotFoundException($"User not found.");
             }
-
             if (userUpdateDto.Photo != null)
             {
                 if (!string.IsNullOrEmpty(user.PhotoPublicId))
@@ -91,20 +90,28 @@ namespace Application.Services
                 user.PhotoUrl = uploadResult.Url.ToString();
                 user.PhotoPublicId = uploadResult.PublicId;
             }
+            else if (userUpdateDto.PhotoUrl != null)
+            {
+                user.PhotoUrl = userUpdateDto.PhotoUrl;
+            }
             else
             {
                 if (!string.IsNullOrEmpty(user.PhotoPublicId))
                 {
                     await _photoService.DeletePhotoAsync(user.PhotoPublicId);
-
-                    user.PhotoUrl = null;
-                    user.PhotoPublicId = null;
                 }
+
+                user.PhotoUrl = null;
+                user.PhotoPublicId = null;
             }
 
             _mapper.Map(userUpdateDto, user);
 
             await _userRepository.UpdateAsync(user);
+
+            var userDto = _mapper.Map<UserDto>(user);
+
+            return userDto;
         }
 
     }

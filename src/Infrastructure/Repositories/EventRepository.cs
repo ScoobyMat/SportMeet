@@ -51,7 +51,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<IEnumerable<Event>> GetFilteredEventsAsync(string? location, DateOnly? startDate, DateOnly? endDate)
+        public async Task<IEnumerable<Event>> GetFilteredEventsAsync(string? location, string? sportType, DateOnly? startDate, DateOnly? endDate)
         {
             var query = _context.Events.AsQueryable();
 
@@ -59,6 +59,12 @@ namespace Infrastructure.Repositories
             {
                 location = location.ToLower();
                 query = query.Where(e => e.City.ToLower().Contains(location));
+            }
+
+            if (!string.IsNullOrEmpty(sportType))
+            {
+                sportType = sportType.ToLower();
+                query = query.Where(e => e.SportType.ToLower().Contains(sportType));
             }
 
             if (startDate.HasValue)

@@ -13,13 +13,13 @@ namespace Application.Dtos.UserDtos
         public string? Country { get; set; }
         public string? Description { get; set; }
         public string? PreferredSports { get; set; }
+        public string? PhotoUrl { get; set; }
         public IFormFile? Photo { get; set; }
 
         public void Mapping(Profile profile)
         {
             profile.CreateMap<UserUpdateDto, User>()
-                .ForAllMembers(opt => opt.Condition((src, dest, srcUser) => srcUser != null));
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
-
     }
 }

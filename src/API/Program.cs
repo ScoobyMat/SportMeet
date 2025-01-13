@@ -1,4 +1,5 @@
 using API.Installers;
+using API.SignalR;
 using Domain.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,8 @@ builder.Services.Configure<CloudinarySettings>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<PresenceTracker>();
 
 var app = builder.Build();
 
@@ -27,6 +30,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("CorsPolicy");
+app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<ChatHub>("/chatHub");
+
 
 app.UseAuthentication();
 app.UseAuthorization();

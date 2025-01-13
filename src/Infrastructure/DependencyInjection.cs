@@ -12,6 +12,7 @@ public static class DependencyInjection
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
 
         return services;
     }

@@ -13,6 +13,7 @@ namespace Infrastructure.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         public override int SaveChanges()
         {

@@ -2,7 +2,8 @@
   <div class="container">
     <div class="row">
       <div class="col-md-6 card">
-        <img :src="user.photoUrl || userImage" alt="userPhoto" class="card-img-top" />
+        <img :src="user.photoUrl ? user.photoUrl : userImage" alt="userPhoto" class="card-img-top" />
+
   <div class="card-body">
     <strong v-if="user.gender === 'Mężczyzna'">
       Pan:
@@ -90,7 +91,7 @@ onMounted(async () => {
   try {
     const userData = await userService.GetUser(userStore.currentUser.id);
     user.value = {
-      photoUrl: userData.photoUrl || '',
+      photoUrl: userData.photoUrl || userImage,
       description: userData.description || '',
       preferredSports: userData.preferredSports ? userData.preferredSports.split(',').map(sport => sport.trim()) : [],
       firstName: userData.firstName || '',

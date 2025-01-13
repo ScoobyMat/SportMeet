@@ -132,6 +132,7 @@ onMounted(() => {
 
 .card-img-top {
     object-fit: cover;
+    height: 100px;
 }
 
 .event-card .btn {

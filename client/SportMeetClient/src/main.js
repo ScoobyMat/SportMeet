@@ -11,6 +11,6 @@ import './style.css';
 const pinia = createPinia();
 
 createApp(App)
-    .use(pinia)
+    .use(createPinia())
     .use(router)
     .mount('#app');

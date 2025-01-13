@@ -1,3 +1,4 @@
+import { usePresenceStore } from '@/stores/presenceStore';
 import { useUserStore } from '@/stores/userStore';
 import axios from 'axios';
 
@@ -10,6 +11,11 @@ const AuthenticationService = {
       if (response && response.data) {
         const userStore = useUserStore();
         userStore.setUser(response.data);
+        localStorage.setItem('user_token', response.data.token);
+        const presenceStore = usePresenceStore();
+        presenceStore.initializeConnection();
+        
+  
         return response.data;
       }
     } catch (error) {

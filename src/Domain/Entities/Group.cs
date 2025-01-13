@@ -6,5 +6,6 @@
         public Event Event { get; set; } = null!;
         public int MaxMembers { get; set; }
         public List<GroupMember> Members { get; set; } = [];
+        public List<Message> Messages { get; set; } = [];
     }
 }

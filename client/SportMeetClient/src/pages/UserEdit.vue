@@ -141,16 +141,20 @@ import { useRouter } from "vue-router";
 
     if (user.value.photoFile) {
       formData.append("Photo", user.value.photoFile);
-    } else if (originalPhotoUrl.value) {
-      formData.append("PhotoUrl", originalPhotoUrl.value);
-    } else {
-      formData.append("PhotoUrl", null);
     }
-    
+
     const updatedUser = await UserService.UpdateUser(formData);
 
     if (updatedUser) {
-      userStore.setUser(updatedUser);
+      // Zachowaj tylko wymagane pola przy aktualizacji użytkownika
+      userStore.setUser({
+        id: updatedUser.id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        token: updatedUser.token,
+        photoUrl: updatedUser.photoUrl || null,
+      });
+
       imageUrl.value = updatedUser.photoUrl || null;
       originalPhotoUrl.value = updatedUser.photoUrl || null;
       router.push("/profile");
@@ -160,6 +164,8 @@ import { useRouter } from "vue-router";
     alert("Wystąpił błąd podczas zapisywania zmian.");
   }
 };
+
+
 
   
   onMounted(() => {

@@ -3,7 +3,20 @@ import axios from "axios";
 
 const API_URL = "https://localhost:7147/api/Users";
 
+
 const UserService = {
+
+  async GetUsers() {
+    try {
+      const response = await axios.get(`${API_URL}`);
+      console.log('Pobrano użytkowników:', response.data); // Dodatkowy log
+      return response.data;
+    } catch (error) {
+      console.error("GetUsers error:", error.response || error.message);
+      throw error;
+    }
+  },
+
   async GetUser(userId) {
     try {
       const response = await axios.get(`${API_URL}/${userId}`);

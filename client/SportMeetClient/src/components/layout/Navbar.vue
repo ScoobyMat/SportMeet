@@ -27,6 +27,12 @@
             <li>
               <router-link to="/my-events" class="dropdown-item">Moje wydarzenia</router-link>
             </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <router-link to="/users" class="dropdown-item">Użytkownicy online</router-link>
+            </li>
           </ul>
         </li>
       </ul>
@@ -73,7 +79,7 @@ const userStore = useUserStore();
 const currentUser = computed(() => userStore.currentUser);
 const isLoggedIn = computed(() => userStore.currentUser !== null);
 
-const logout = () => {
+const logout = async () => {
   userStore.logout();
 };
 </script>

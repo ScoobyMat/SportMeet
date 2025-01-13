@@ -21,6 +21,19 @@ namespace API.Installers
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = contex =>
+                        {
+                            var accessToken = contex.Request.Query["access_token"];
+                            var path = contex.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+                            {
+                                contex.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
         }
     }

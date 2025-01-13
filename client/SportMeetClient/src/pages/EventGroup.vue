@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div>
         <div class="row gx-4">
             <div v-if="showMembers" class="col-lg-3 col-md-12 card">
                 <button class="btn btn-sm btn-secondary mb-3 w-100" @click="toggleMembers">Ukryj listę członków</button>
@@ -14,7 +14,7 @@
                 <button v-if="!showMembers" class="btn btn-sm btn-secondary mb-3 w-100" @click="toggleMembers">Pokaż
                     listę członków</button>
                 <h4>Czat grupowy</h4>
-                <GroupChat />
+                <GroupChat :groupId="String(groupId)" />
             </div>
 
             <div class="col-lg-3 col-md-12 card">
@@ -56,13 +56,15 @@ const center = ref({ lat: 52.2296756, lng: 21.0122287 });
 const showMembers = ref(true);
 const route = useRoute();
 const eventId = route.params.eventId;
+const groupId = ref(null);
 
 const fetchEvent = async () => {
     try {
         const fetchedEvent = await EventService.GetEventById(eventId);
         event.value = fetchedEvent;
         center.value = { lat: fetchedEvent.latitude || 52.2296756, lng: fetchedEvent.longitude || 21.0122287 };
-        fetchGroup(fetchedEvent.groupId);
+        groupId.value = fetchedEvent.groupId; // Przypisanie wartości groupId z odpowiedzi API
+        fetchGroup(fetchedEvent.groupId); // Używamy fetchGroup z prawidłowym groupId
     } catch (error) {
         console.error('Błąd ładowania szczegółów eventu:', error);
     }

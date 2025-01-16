@@ -12,6 +12,8 @@ namespace Application.Dtos.EventDtos
         public required string SportType { get; set; }
         public required string Address { get; set; }
         public required string City { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
         public required DateOnly Date { get; set; }
         public required TimeSpan Time { get; set; }
         public required string CreatedByUser { get; set; }
@@ -25,7 +27,9 @@ namespace Application.Dtos.EventDtos
             profile.CreateMap<Event, EventDto>()
                 .ForMember(dest => dest.MaxMembers, opt => opt.MapFrom(src => src.MaxParticipants))
                 .ForMember(dest => dest.CurrentMembers, opt => opt.MapFrom(src => src.Group.Members.Count))
-                .ForMember(dest => dest.CreatedByUser, opt => opt.MapFrom(src => $"{src.CreatedByUser.FirstName} {src.CreatedByUser.LastName}"));
+                .ForMember(dest => dest.CreatedByUser, opt => opt.MapFrom(src => $"{src.CreatedByUser.FirstName} {src.CreatedByUser.LastName}"))
+                .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
+                .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude));
         }
     }
 }

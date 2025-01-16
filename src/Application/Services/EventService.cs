@@ -12,19 +12,30 @@ namespace Application.Services
         private readonly IEventRepository _eventRepository;
         private readonly IGroupService _groupService;
         private readonly IPhotoService _photoService;
+        private readonly IGeoCodingService _geoCodingService;
         private readonly IMapper _mapper;
 
-        public EventService(IEventRepository eventRepository, IGroupService groupService, IPhotoService photoService, IMapper mapper)
+        public EventService(IEventRepository eventRepository, IGroupService groupService, IPhotoService photoService, IGeoCodingService geoCodingService, IMapper mapper)
         {
             _eventRepository = eventRepository;
             _groupService = groupService;
             _photoService = photoService;
+            _geoCodingService = geoCodingService;
             _mapper = mapper;
         }
 
         public async Task<EventDto?> AddEventAsync(EventCreateDto eventDto)
         {
             var newEvent = _mapper.Map<Event>(eventDto);
+
+            var geoCodingResult = await _geoCodingService.GetCoordinatesAsync(newEvent);
+            if (geoCodingResult == null)
+            {
+                throw new InvalidOperationException("Failed to retrieve coordinates for the event location.");
+            }
+
+            newEvent = geoCodingResult;
+
 
             if (eventDto.Photo != null)
             {
@@ -149,8 +160,26 @@ namespace Application.Services
                 eventToUpdate.PhotoPublicId = uploadResult.PublicId;
             }
 
+            if (!string.IsNullOrWhiteSpace(eventUpdateDto.Address) || !string.IsNullOrWhiteSpace(eventUpdateDto.City))
+            {
+                eventToUpdate.Address = eventUpdateDto.Address;
+                eventToUpdate.City = eventUpdateDto.City;
+
+                var geoCodedEvent = await _geoCodingService.GetCoordinatesAsync(eventToUpdate);
+                if (geoCodedEvent != null)
+                {
+                    eventToUpdate.Latitude = geoCodedEvent.Latitude;
+                    eventToUpdate.Longitude = geoCodedEvent.Longitude;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Could not determine coordinates for the given address.");
+                }
+            }
+
             _mapper.Map(eventUpdateDto, eventToUpdate);
             await _eventRepository.UpdateAsync(eventToUpdate);
         }
+
     }
 }

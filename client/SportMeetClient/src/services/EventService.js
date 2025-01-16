@@ -44,10 +44,16 @@ const EventService = {
       const response = await axios.get(
         `${API_URL}/filter?${params.toString()}`
       );
-      return response.data;
+
+      // Jeśli odpowiedź jest pusta (brak wyników), rzucamy specjalny błąd lub zwracamy pustą tablicę
+      if (response.data.length === 0) {
+        throw new Error('No events found for the applied filters');
+      }
+
+      return response.data; // Zwracamy dane, jeśli są dostępne
     } catch (error) {
       console.error("Error filtering events:", error.message);
-      throw error;
+      throw error;  // Rzucamy błąd, aby obsłużyć go w komponencie
     }
   },
 

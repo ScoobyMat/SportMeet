@@ -18,6 +18,7 @@ public static class DependencyInjection
         services.AddScoped<IGroupMemberService, GroupMemberService>();
         services.AddScoped<IPhotoService, PhotoService>();
         services.AddScoped<IMessageService, MessageService>();
+        services.AddScoped<IGeoCodingService, GeoCodingService>();
 
         return services;
     }

@@ -8,6 +8,8 @@
         public required int MaxParticipants { get; set; }
         public required string Address { get; set; }
         public required string City { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
         public required DateOnly Date { get; set; }
         public required TimeSpan Time { get; set; }
         public string? PhotoUrl { get; set; }

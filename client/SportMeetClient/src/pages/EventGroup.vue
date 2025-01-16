@@ -30,7 +30,7 @@
                         <p><strong>Liczba miejsc:</strong> {{ event.currentMembers }} / {{ event.maxMembers }}</p>
                         <p><strong>Organizator:</strong> {{ event.createdByUser }}</p>
                     </div>
-                    <HereMap :center="center" :mapHeight="'400px'" :mapWidth="'100%'" />
+                    <HereMap :center="center" :markers="[center]" :mapHeight="'400px'" :mapWidth="'100%'" />
                 </div>
 
                 <div v-else>
@@ -62,9 +62,9 @@ const fetchEvent = async () => {
     try {
         const fetchedEvent = await EventService.GetEventById(eventId);
         event.value = fetchedEvent;
-        center.value = { lat: fetchedEvent.latitude || 52.2296756, lng: fetchedEvent.longitude || 21.0122287 };
-        groupId.value = fetchedEvent.groupId; // Przypisanie wartości groupId z odpowiedzi API
-        fetchGroup(fetchedEvent.groupId); // Używamy fetchGroup z prawidłowym groupId
+        center.value = { lat: fetchedEvent.latitude, lng: fetchedEvent.longitude };
+        groupId.value = fetchedEvent.groupId;
+        fetchGroup(fetchedEvent.groupId);
     } catch (error) {
         console.error('Błąd ładowania szczegółów eventu:', error);
     }

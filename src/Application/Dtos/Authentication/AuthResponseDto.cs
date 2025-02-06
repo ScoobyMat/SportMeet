@@ -5,17 +5,8 @@ using Domain.Entities;
 
 namespace Application.Dtos.Authentication
 {
-    public class AuthResponseDto : IMap
+    public class AuthResponseDto
     {
-        public required int Id { get; set; }
-        public required string FirstName { get; set; }
-        public required string LastName { get; set; }
         public required string Token { get; set; }
-        public string? PhotoUrl { get; set; }
-
-        public void Mapping(Profile profile)
-        {
-            profile.CreateMap<User, UserDto>();
-        }
     }
 }

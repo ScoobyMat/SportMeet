@@ -9,13 +9,15 @@ namespace Application.Dtos.GroupDtos
     {
         public int Id { get; set; }
         public int EventId { get; set; }
+        public int MaxMembers { get; set; }
         public List<GroupMemberDto> Members { get; set; } = [];
 
         public void Mapping(Profile profile)
         {
             profile.CreateMap<Group, GroupDto>()
                 .ForMember(dest => dest.EventId, opt => opt.MapFrom(src => src.EventId))
-                .ForMember(dest => dest.Members, opt => opt.MapFrom(src => src.Members));
+                .ForMember(dest => dest.Members, opt => opt.MapFrom(src => src.Members))
+                .ForMember(dest => dest.MaxMembers, opt => opt.MapFrom(src => src.MaxMembers));
 
         }
     }

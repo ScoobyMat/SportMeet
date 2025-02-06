@@ -7,9 +7,8 @@ import './style.css';
 
 <template>
     <Navbar />
-        <router-view />
+    <router-view />
     <Footer />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

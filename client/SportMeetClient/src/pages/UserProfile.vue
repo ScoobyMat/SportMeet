@@ -1,30 +1,32 @@
 <template>
-  <div class="container">
+  <div v-if="authStore.isAuthenticated" class="container">
     <div class="row">
       <div class="col-md-6 card">
-        <img :src="user.photoUrl ? user.photoUrl : userImage" alt="userPhoto" class="card-img-top" />
+        <img
+          :src="userStore.getUserPhoto || userImage"
+          alt="Zdjęcie użytkownika"
+          class="card-img-top"
+        />
+        <div class="card-body">
+          <strong v-if="user.gender === 'Mężczyzna'">Pan:</strong>
+          <strong v-else-if="user.gender === 'Kobieta'">Pani:</strong>
+          <p>{{ user.firstName || 'Nieznane' }} {{ user.lastName || 'Nieznane' }}</p>
 
-  <div class="card-body">
-    <strong v-if="user.gender === 'Mężczyzna'">
-      Pan:
-    </strong>
-    <strong v-else="user.gender === 'Kobieta'">
-      Pani:
-    </strong>
-    <p>{{ user.firstName }} {{ user.lastName }}</p>
+          <strong>Email:</strong>
+          <p>{{ user.email || 'Brak informacji' }}</p>
 
-    <strong>Email:</strong>
-    <p>{{ user.email }}</p>
+          <strong>Wiek:</strong>
+          <p>{{ user.age || 'Brak informacji' }}</p>
 
-    <strong>Wiek:</strong>
-    <p>{{ (user.age) }}</p>
+          <strong>Płeć:</strong>
+          <p>{{ user.gender || 'Brak informacji' }}</p>
 
-    <strong>Płeć:</strong>
-    <p>{{ user.gender }}</p>
-
-    <strong>Mieszka w:</strong>
-    <p>{{ user.city }}, {{ user.country }}</p>
-  </div>
+          <strong>Mieszka w:</strong>
+          <p>
+            {{ user.city || 'Brak informacji' }},
+            {{ user.country || 'Brak informacji' }}
+          </p>
+        </div>
         <button class="btn btn-primary btn-lg mb-5" @click="goToEditProfile">
           Edytuj profil
         </button>
@@ -32,23 +34,17 @@
 
       <div class="col-md-6">
         <div class="small-card">
-          <tab heading="About">
-            <h4>O mnie:</h4>
-            <blockquote class="user-description">
-              <p>{{ user.description || 'Brak opisu.' }}</p>
-            </blockquote>
-          </tab>
+          <h4>O mnie:</h4>
+          <blockquote class="user-description">
+            <p>{{ user.description || 'Brak opisu.' }}</p>
+          </blockquote>
         </div>
 
         <div class="small-card">
-          <h4>Zainteresowania</h4>
-          <ul class="list-unstyled">
-            <li v-if="user.preferredSports && user.preferredSports.length > 0">
-              <ul class="preferred-sports-list">
-                <li v-for="(sport, index) in user.preferredSports" :key="index">
-                  <i class="bi bi-check-circle"></i> {{ sport }}
-                </li>
-              </ul>
+          <h4>Zainteresowania:</h4>
+          <ul class="preferred-sports-list">
+            <li v-if="user.preferredSports.length > 0" v-for="(sport, index) in user.preferredSports" :key="index">
+              <i class="bi bi-check-circle"></i> {{ sport }}
             </li>
             <li v-else>Brak zdefiniowanych zainteresowań.</li>
           </ul>
@@ -59,77 +55,57 @@
 </template>
 
 <script setup>
-import userImage from '@/assets/image/user.png';
-import userService from "@/services/userService";
-import { useUserStore } from '@/stores/userStore';
-import { onMounted, ref } from "vue";
-import { useRouter } from 'vue-router';
+import userImage from "@/assets/image/user.png";
+import { useAuthStore } from "@/stores/auth";
+import { useUserStore } from "@/stores/user";
+import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
-const router = useRouter();
+const authStore = useAuthStore();
 const userStore = useUserStore();
+const router = useRouter();
 
-const user = ref({
-  photoUrl: '',
-  description: '',
-  preferredSports: [],
-  firstName: '',
-  lastName: '',
-  email: '',
-  age: '',
-  gender: '',
-  city: '',
-  country: ''
+onMounted(() => {
+  if (authStore.isAuthenticated && authStore.getUserId) {
+    userStore.fetchUser(authStore.getUserId);
+  }
+});
+
+const user = computed(() => {
+  const userData = userStore.getUser || {};
+  return {
+    ...userData,
+    preferredSports: Array.isArray(userData.preferredSports)
+      ? userData.preferredSports
+      : (userData.preferredSports || "").split(",").map((s) => s.trim()),
+  };
 });
 
 const goToEditProfile = () => {
-  router.push({ name: 'UserProfileEdit' });
+  router.push({ name: "UserProfileEdit" });
 };
-
-onMounted(async () => {
-  if (!userStore.currentUser) return;
-
-  try {
-    const userData = await userService.GetUser(userStore.currentUser.id);
-    user.value = {
-      photoUrl: userData.photoUrl || userImage,
-      description: userData.description || '',
-      preferredSports: userData.preferredSports ? userData.preferredSports.split(',').map(sport => sport.trim()) : [],
-      firstName: userData.firstName || '',
-      lastName: userData.lastName || '',
-      email: userData.email || '',
-      age: userData.age || '',
-      gender: userData.gender || '',
-      city: userData.city || '',
-      country: userData.country || ''
-    };
-  } catch (error) {
-    console.error("Nie udało się pobrać danych użytkownika:", error.message);
-  }
-});
 </script>
 
-<style scoped>
 
+<style scoped>
 .user-description {
   font-style: italic;
   border-left: 4px solid #007bff;
   padding: 10px 15px;
   margin-top: 10px;
-}
-
-.user-description p {
-  margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: #555;
 }
 
 .preferred-sports-list {
   list-style-type: none;
-  font-style: italic;
+  padding-left: 0;
+  margin-top: 10px;
 }
 
 .preferred-sports-list li {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  color: #555;
 }
 
 .preferred-sports-list i {
@@ -137,30 +113,26 @@ onMounted(async () => {
   margin-right: 8px;
 }
 
-ul {
-  padding-left: 0;
-}
-
-ul li {
-  font-size: 1rem;
-  color: #555;
-}
-
 .card-img-top {
   padding: 25px;
   border-radius: 50%;
   max-width: 80%;
-  max-height: 450px;
+  max-height: 300px;
+  object-fit: cover;
 }
 
-.card-body strong{
+.card-body strong {
   font-size: 1.2rem;
 }
 
 .card-body p {
   margin: 0;
-  font-size: 1.5rem;
-  font-family: italic;
+  font-size: 1.2rem;
   color: #555;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
 }
 </style>

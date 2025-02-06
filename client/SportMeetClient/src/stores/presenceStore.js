@@ -1,16 +1,13 @@
-import { HubConnectionBuilder } from "@microsoft/signalr";
+import { createHubConnection, stopConnection } from "@/utils/signalRHelper";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { useUserStore } from "./userStore";
 
 export const usePresenceStore = defineStore("presence", () => {
   const onlineUsers = ref([]);
   let connection = null;
 
   const initializeConnection = async () => {
-    const userStore = useUserStore();
-    const token = userStore.currentUser?.token;
-
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("Brak tokenu użytkownika!");
       return;
@@ -18,26 +15,25 @@ export const usePresenceStore = defineStore("presence", () => {
 
     if (connection) return;
 
-    connection = new HubConnectionBuilder()
-      .withUrl("https://localhost:7147/hubs/presence", {
-        accessTokenFactory: () => token,
-      })
-      .withAutomaticReconnect()
-      .build();
+    const eventHandlers = {
+      UserIsOnline: (username) => {
+        if (!onlineUsers.value.includes(username)) {
+          onlineUsers.value.push(username);
+        }
+      },
+      UserIsOffline: (username) => {
+        onlineUsers.value = onlineUsers.value.filter((user) => user !== username);
+      },
+      GetOnlineUsers: (users) => {
+        onlineUsers.value = users;
+      },
+    };
 
-    connection.on("UserIsOnline", (username) => {
-      if (!onlineUsers.value.includes(username)) {
-        onlineUsers.value.push(username);
-      }
-    });
-
-    connection.on("UserIsOffline", (username) => {
-      onlineUsers.value = onlineUsers.value.filter((user) => user !== username);
-    });
-
-    connection.on("GetOnlineUsers", (users) => {
-      onlineUsers.value = users;
-    });
+    connection = createHubConnection(
+      "https://localhost:7147/hubs/presence",
+      token,
+      eventHandlers
+    );
 
     try {
       await connection.start();
@@ -47,21 +43,16 @@ export const usePresenceStore = defineStore("presence", () => {
     }
   };
 
-  const stopConnection = async () => {
+  const stopConnectionHandler = async () => {
     if (connection) {
-      try {
-        await connection.stop();
-        connection = null;
-        console.log("Połączenie SignalR zakończone");
-      } catch (error) {
-        console.error("Błąd podczas zamykania połączenia SignalR:", error);
-      }
+      await stopConnection(connection);
+      connection = null;
     }
   };
 
   return {
     onlineUsers,
     initializeConnection,
-    stopConnection,
+    stopConnection: stopConnectionHandler,
   };
 });

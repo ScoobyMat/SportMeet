@@ -63,15 +63,13 @@
 <script setup>
 import { availableSports } from '@/constants/sports.js';
 import EventService from '@/services/eventService';
-import { computed, ref } from 'vue';
-
-import { useUserStore } from '@/stores/userStore';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 
-const userStore = useUserStore();
-const currentUser = computed(() => userStore.currentUser);
+const authStore = useAuthStore();
 
-const createdUser = currentUser.value.id;
+const createdUser = authStore.getUserId;
 
 const router = useRouter();
 

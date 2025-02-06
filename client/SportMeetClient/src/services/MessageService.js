@@ -1,4 +1,4 @@
-import * as signalR from "@microsoft/signalr";
+import { createHubConnection, stopConnection } from "@/utils/signalRHelper";
 
 class MessageService {
   constructor() {
@@ -9,38 +9,31 @@ class MessageService {
   async initialize(groupId, onMessageReceived, onHistoryReceived, onError) {
     this.groupId = groupId;
 
-    this.connection = new signalR.HubConnectionBuilder()
-      .withUrl(`https://localhost:7147/chathub`)
-      .withAutomaticReconnect()
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
-
-    this.connection.on("ReceiveMessage", onMessageReceived);
-    this.connection.on("ReceiveHistory", onHistoryReceived);
-
     try {
+      this.connection = createHubConnection(
+        "https://localhost:7147/chathub",
+        localStorage.getItem("user_token"),
+        {
+          ReceiveMessage: onMessageReceived,
+          ReceiveHistory: onHistoryReceived,
+        }
+      );
+
       await this.connection.start();
       console.log("SignalR connected");
 
       await this.joinGroup(groupId);
     } catch (err) {
       console.error("Connection failed:", err);
-      onError(err.message);
+      if (onError) onError(err.message);
     }
   }
 
   async joinGroup(groupId) {
     if (this.connection) {
-      groupId = Number(groupId);
-
-      if (isNaN(groupId)) {
-        console.error("Invalid groupId:", groupId);
-        return;
-      }
-
       try {
-        console.log(`Attempting to join group: ${groupId}`);
-        await this.connection.invoke("JoinGroup", groupId);
+        await this.connection.invoke("JoinGroup", Number(groupId));
+        console.log(`Joined group: ${groupId}`);
       } catch (err) {
         console.error("Failed to join group:", err);
       }
@@ -49,40 +42,19 @@ class MessageService {
 
   async sendMessage(messageDto) {
     if (this.connection) {
-        console.log("Sending message:", messageDto);
-
-        try {
-            await this.connection.invoke("SendMessage", this.groupId, messageDto);
-            console.log("Message sent successfully");
-        } catch (err) {
-            console.error("Failed to send message:", err);
-            throw err;
-        }
-    }
-}
-
-  async leaveGroup(groupId) {
-    if (this.connection) {
       try {
-        await this.connection.invoke("LeaveGroup", groupId);
-        console.log(`Left group ${groupId}`);
+        await this.connection.invoke("SendMessage", this.groupId, messageDto);
+        console.log("Message sent");
       } catch (err) {
-        console.error("Failed to leave group:", err);
+        console.error("Failed to send message:", err);
         throw err;
       }
     }
   }
 
   async disconnect() {
-    if (this.connection) {
-      try {
-        await this.connection.stop();
-        console.log("SignalR disconnected");
-      } catch (err) {
-        console.error("Failed to disconnect:", err);
-      }
-      this.connection = null;
-    }
+    await stopConnection(this.connection);
+    this.connection = null;
   }
 }
 

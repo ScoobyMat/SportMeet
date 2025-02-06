@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.Authentication;
+using Application.Dtos.UserDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -22,29 +23,19 @@ namespace Application.Services
         public async Task<AuthResponseDto> Login(LoginDto loginDto)
         {
             var user = await _userRepository.GetByEmailAsync(loginDto.Email);
-            if (user == null)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password))
             {
-                throw new UnauthorizedAccessException("Invalid email");
-            }
-
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.Password);
-            if (!isPasswordValid)
-            {
-                throw new UnauthorizedAccessException("Invalid password");
+                throw new UnauthorizedAccessException("Invalid email or password");
             }
 
             return new AuthResponseDto
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PhotoUrl = user.PhotoUrl,
                 Token = _tokenService.CreateToken(user)
             };
         }
 
 
-        public async Task<AuthResponseDto> Register(RegisterDto registerDto)
+        public async Task<UserDto> Register(RegisterDto registerDto)
         {
             if (await _userRepository.ExistsByEmailAsync(registerDto.Email))
             {
@@ -58,14 +49,9 @@ namespace Application.Services
 
             await _userRepository.AddAsync(user);
 
-            return new AuthResponseDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Token = _tokenService.CreateToken(user)
+            var userDto = _mapper.Map<UserDto>(user);
 
-        };
+            return userDto;
         }
 
     }

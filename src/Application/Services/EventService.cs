@@ -122,7 +122,7 @@ namespace Application.Services
             var events = await _eventRepository.GetFilteredEventsAsync(location, sportType, startDate, endDate);
             if (events == null || !events.Any())
             {
-                throw new InvalidOperationException("No events matched the given filter criteria.");
+                return new List<EventDto>();
             }
 
             return _mapper.Map<List<EventDto>>(events);
@@ -131,9 +131,10 @@ namespace Application.Services
         public async Task<IEnumerable<EventDto>> GetUpcomingEventsForUserAsync(int userId)
         {
             var events = await _eventRepository.GetUpcomingEventsForUserAsync(userId);
+
             if (events == null || !events.Any())
             {
-                throw new InvalidOperationException("No upcoming events found for the user.");
+                return new List<EventDto>();
             }
 
             return _mapper.Map<IEnumerable<EventDto>>(events);

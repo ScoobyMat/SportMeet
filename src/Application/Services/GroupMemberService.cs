@@ -22,6 +22,8 @@ namespace Application.Services
         public async Task AddMemberAsync(AddMemberDto addMemberDto)
         {
             var group = await _groupRepository.GetByIdAsync(addMemberDto.GroupId);
+            Console.WriteLine($"Group ID: {group.Id}, Current Members: {group.Members.Count}, Max Members: {group.MaxMembers}");
+
             if (group == null)
                 throw new KeyNotFoundException("Group not found.");
 

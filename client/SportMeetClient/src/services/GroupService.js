@@ -1,11 +1,13 @@
-import axios from "axios";
+import apiClient from "@/apiClient";
 
-const API_URL = "https://localhost:7147/api/Group";
+const API_URL = "/Group";
 
 const GroupService = {
   async getGroupMembers(groupId) {
     try {
-      const response = await axios.get(`${API_URL}/${groupId}`);
+      const response = await apiClient.get(`${API_URL}/${groupId}`, {
+        requiresAuth: true,
+      });
       return response.data.members;
     } catch (error) {
       console.error(
@@ -16,4 +18,5 @@ const GroupService = {
     }
   },
 };
+
 export default GroupService;

@@ -1,12 +1,13 @@
 ﻿using Application.Dtos.GroupDtos;
 using Application.Dtos.GroupMemberDtos;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    // [Authorize]
-    public class GroupMemberController : ControllerBase
+    //[Authorize]
+    public class GroupMemberController : BaseApiController
     {
         private readonly IGroupMemberService _groupMemberService;
 

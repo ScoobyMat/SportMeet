@@ -1,72 +1,75 @@
-import axios from "axios";
+import apiClient from "@/apiClient";
 
-const API_URL = "https://localhost:7147/api/Event";
+const API_URL = "/Event";
 
 const EventService = {
   async GetEvents() {
     try {
-      const response = await axios.get(`${API_URL}`);
+      const response = await apiClient.get(API_URL, {
+        requiresAuth: false,
+      });
       return response.data;
     } catch (error) {
-      console.error("error:", error.response || error.message);
+      console.error("Error fetching events:", error);
       throw error;
     }
   },
 
   async GetEventById(eventId) {
     try {
-      const response = await axios.get(`${API_URL}/${eventId}`);
+      const response = await apiClient.get(`${API_URL}/${eventId}`, {
+        requiresAuth: false,
+      });
       return response.data;
     } catch (error) {
-      console.error("error:", error.response || error.message);
+      console.error(`Error fetching event with ID ${eventId}:`, error);
       throw error;
     }
   },
 
   async GetUpcomingEvents(userId) {
     try {
-      const response = await axios.get(`${API_URL}/upcoming-events/${userId}`);
+      const response = await apiClient.get(
+        `${API_URL}/upcoming-events/${userId}`,
+        {
+          requiresAuth: true,
+        }
+      );
       return response.data;
     } catch (error) {
-      console.error("error:", error.response || error.message);
+      console.error("Error fetching upcoming events:", error);
       throw error;
     }
   },
 
   async FilterEvents(filters) {
+    const params = new URLSearchParams();
+    if (filters.location) params.append("location", filters.location);
+    if (filters.sportType) params.append("sportType", filters.sportType);
+    if (filters.startDate) params.append("startDate", filters.startDate);
+    if (filters.endDate) params.append("endDate", filters.endDate);
+
     try {
-      const params = new URLSearchParams();
-      if (filters.location) params.append("location", filters.location);
-      if (filters.sportType) params.append("sportType", filters.sportType);
-      if (filters.startDate) params.append("startDate", filters.startDate);
-      if (filters.endDate) params.append("endDate", filters.endDate);
-
-      const response = await axios.get(
-        `${API_URL}/filter?${params.toString()}`
+      const response = await apiClient.get(
+        `${API_URL}/filter?${params.toString()}`,
+        { requiresAuth: false }
       );
-
-      // Jeśli odpowiedź jest pusta (brak wyników), rzucamy specjalny błąd lub zwracamy pustą tablicę
-      if (response.data.length === 0) {
-        throw new Error('No events found for the applied filters');
-      }
-
-      return response.data; // Zwracamy dane, jeśli są dostępne
+      return response.data;
     } catch (error) {
-      console.error("Error filtering events:", error.message);
-      throw error;  // Rzucamy błąd, aby obsłużyć go w komponencie
+      console.error("Error fetching filtered events:", error);
+      throw error;
     }
   },
 
   async createEvent(formData) {
     try {
-      const response = await axios.post(`${API_URL}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await apiClient.post(API_URL, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        requiresAuth: true,
       });
       return response.data;
     } catch (error) {
-      console.error("Error creating event:", error.message);
+      console.error("Error creating event:", error);
       throw error;
     }
   },

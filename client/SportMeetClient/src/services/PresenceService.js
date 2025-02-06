@@ -1,59 +1,38 @@
-import { HubConnectionBuilder } from '@microsoft/signalr';
+import { usePresenceStore } from "@/stores/presence";
+import { createHubConnection, stopConnection } from "@/utils/signalRHelper";
 
 class PresenceService {
   constructor() {
     this.connection = null;
   }
 
-  // Funkcja do tworzenia połączenia SignalR
   async createHubConnection(token) {
+    const presenceStore = usePresenceStore();
+
     try {
-      this.connection = new HubConnectionBuilder()
-        .withUrl('https://localhost:7147/hubs/presence', {
-          accessTokenFactory: () => token
-        })
-        .withAutomaticReconnect()
-        .build();
+      const eventHandlers = {
+        UserJoined: (user) => presenceStore.addUserToOnline(user),
+        UserLeft: (user) => presenceStore.removeUserFromOnline(user),
+        GetOnlineUsers: (users) => presenceStore.setOnlineUsers(users),
+      };
 
-      // Nasłuchiwanie na dołączenie użytkownika
-      this.connection.on('UserJoined', (user) => {
-        const presenceStore = usePresenceStore();
-        presenceStore.addUserToOnline(user); // Dodajemy użytkownika do listy online
-      });
+      this.connection = createHubConnection(
+        "https://localhost:7147/hubs/presence",
+        token,
+        eventHandlers
+      );
 
-      // Nasłuchiwanie na opuszczenie użytkownika
-      this.connection.on('UserLeft', (user) => {
-        const presenceStore = usePresenceStore();
-        presenceStore.removeUserFromOnline(user); // Usuwamy użytkownika z listy online
-      });
-
-      // Pobranie wszystkich użytkowników online na początku
-      this.connection.on('GetOnlineUsers', (users) => {
-        const presenceStore = usePresenceStore();
-        presenceStore.setOnlineUsers(users);
-        console.log('Aktualni użytkownicy online:', users);
-      });
-
-      // Rozpoczynamy połączenie
       await this.connection.start();
-      console.log('Połączenie SignalR zostało nawiązane.');
+      console.log("SignalR connected.");
     } catch (error) {
-      console.error('Błąd podczas łączenia z SignalR:', error);
+      console.error("SignalR connection failed:", error);
     }
   }
 
-  // Funkcja do zatrzymania połączenia
   async stopConnection() {
-    if (connection) {
-      try {
-        await connection.stop();
-        connection = null; // Resetujemy połączenie
-        console.log('Połączenie SignalR zakończone');
-      } catch (error) {
-        console.error('Błąd podczas zamykania połączenia SignalR:', error);
-      }
-    }
-  };
+    await stopConnection(this.connection);
+    this.connection = null;
+  }
 }
 
 export default new PresenceService();

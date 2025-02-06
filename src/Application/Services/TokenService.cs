@@ -28,7 +28,6 @@ namespace Application.Services
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.GivenName, user.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName),
-            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
         };
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);

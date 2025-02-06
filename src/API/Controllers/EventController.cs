@@ -1,10 +1,11 @@
 ﻿using Application.Dtos.EventDtos;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    // [Authorize]
+    [Authorize]
     public class EventController : BaseApiController
     {
         private readonly IEventService _eventService;
@@ -14,6 +15,7 @@ namespace API.Controllers
             _eventService = eventService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventDto>>> GetAllEvents()
         {
@@ -28,6 +30,7 @@ namespace API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<EventDto>> GetEvent(int id)
         {
@@ -42,6 +45,7 @@ namespace API.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpGet("filter")]
         public async Task<IActionResult> GetFilteredEvents([FromQuery] string? location, [FromQuery] string? sportType, [FromQuery] DateOnly? startDate, [FromQuery] DateOnly? endDate)
         {
@@ -73,15 +77,8 @@ namespace API.Controllers
         [HttpGet("upcoming-events/{userId}")]
         public async Task<IActionResult> GetUpcomingEventsForUser(int userId)
         {
-            try
-            {
                 var events = await _eventService.GetUpcomingEventsForUserAsync(userId);
                 return Ok(events);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound(ex.Message);
-            }
         }
 
         [HttpPut]

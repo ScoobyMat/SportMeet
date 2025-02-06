@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="row gx-4">
+        <div class="row">
             <div v-if="showMembers" class="col-lg-3 col-md-12 card">
                 <button class="btn btn-sm btn-secondary mb-3 w-100" @click="toggleMembers">Ukryj listę członków</button>
                 <ul>
@@ -27,10 +27,8 @@
                         <p><strong>Opis:</strong> {{ event.description }}</p>
                         <p><strong>Gdzie:</strong> {{ event.address }}, {{ event.city }}</p>
                         <p><strong>Kiedy:</strong> {{ event.date }} | {{ event.time }}</p>
-                        <p><strong>Liczba miejsc:</strong> {{ event.currentMembers }} / {{ event.maxMembers }}</p>
-                        <p><strong>Organizator:</strong> {{ event.createdByUser }}</p>
                     </div>
-                    <HereMap :center="center" :markers="[center]" :mapHeight="'400px'" :mapWidth="'100%'" />
+                    <HereMap :center="center" :markers="[center]" :mapHeight="'350px'" :mapWidth="'100%'" />
                 </div>
 
                 <div v-else>
@@ -129,5 +127,5 @@ onMounted(() => {
     padding: 1rem;
     border: 1px solid #ddd;
     margin: 1rem 0;
-  }
+}
 </style>

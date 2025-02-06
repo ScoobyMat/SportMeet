@@ -1,9 +1,10 @@
 ﻿using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    // [Authorize]
+    [Authorize]
     public class GroupController : BaseApiController
     {
         private readonly IGroupService _groupService;

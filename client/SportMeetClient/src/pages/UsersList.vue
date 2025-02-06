@@ -1,25 +1,22 @@
 <script setup>
-import UserService from '@/services/UserService'; // Zakładam, że masz już serwis do pobierania użytkowników
+import UserService from '@/services/UserService';
 import { usePresenceStore } from '@/stores/presenceStore';
 import { onMounted, ref } from 'vue';
 
 const presenceStore = usePresenceStore();
 const users = ref([]);
 
-// Pobierz wszystkich użytkowników
 const fetchUsers = async () => {
   try {
-    users.value = await UserService.GetUsers();
+    users.value = await UserService.getUsers();
     console.log('Pobrani użytkownicy:', users.value);
   } catch (error) {
     console.error('Błąd podczas pobierania użytkowników', error);
   }
 };
 
-// Inicjalizuj połączenie SignalR po załadowaniu komponentu
 onMounted(() => {
-  presenceStore.initializeConnection(); // Uruchom połączenie SignalR
-  fetchUsers(); // Pobierz listę użytkowników z API
+  fetchUsers();
 });
 </script>
 
@@ -33,7 +30,6 @@ onMounted(() => {
           <div class="user-details">
             <h4>{{ user.firstName }}</h4>
             <p>{{ user.email }}</p>
-            <!-- Sprawdzenie czy użytkownik jest online -->
             <span v-if="presenceStore.onlineUsers.includes(user.firstName)" class="online-status">Online</span>
             <span v-else class="offline-status">Offline</span>
           </div>

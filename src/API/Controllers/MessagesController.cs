@@ -1,9 +1,11 @@
 ﻿using Application.Dtos.MessageDtos;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class MessagesController : BaseApiController
     {
         private readonly IMessageService _messageService;

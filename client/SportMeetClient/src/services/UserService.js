@@ -1,15 +1,14 @@
-import { useUserStore } from "@/stores/userStore";
-import axios from "axios";
+import apiClient from "@/apiClient";
+import { useUserStore } from "../stores/user";
 
-const API_URL = "https://localhost:7147/api/Users";
-
+const API_URL = "/Users";
 
 const UserService = {
-
-  async GetUsers() {
+  async getUsers() {
     try {
-      const response = await axios.get(`${API_URL}`);
-      console.log('Pobrano użytkowników:', response.data); // Dodatkowy log
+      const response = await apiClient.get(`${API_URL}`, {
+        requiresAuth: true,
+      });
       return response.data;
     } catch (error) {
       console.error("GetUsers error:", error.response || error.message);
@@ -17,9 +16,11 @@ const UserService = {
     }
   },
 
-  async GetUser(userId) {
+  async getUser(userId) {
     try {
-      const response = await axios.get(`${API_URL}/${userId}`);
+      const response = await apiClient.get(`${API_URL}/${userId}`, {
+        requiresAuth: true,
+      });
       return response.data;
     } catch (error) {
       console.error("GetUser error:", error.response || error.message);
@@ -27,34 +28,25 @@ const UserService = {
     }
   },
 
-  async UpdateUser(formData) {
+  async updateUser(formData) {
     try {
-      const response = await axios.put(`${API_URL}`, formData, {
+      const response = await apiClient.put(`${API_URL}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        requiresAuth: true,
       });
-
-      if (response.data && response.data.photoUrl) {
-
-        const userStore = useUserStore();
-
-        userStore.updatePhoto(response.data.photoUrl);
-
-        const currentUser = JSON.parse(localStorage.getItem("user")) || {};
-        currentUser.photoUrl = response.data.photoUrl;
-
-        if (response.data.token) {
-          currentUser.token = response.data.token;
-        }
-
-        localStorage.setItem("user", JSON.stringify(currentUser));
+  
+      const userStore = useUserStore();
+  
+      if (response.data.photoUrl) {
+        userStore.user.photoUrl = response.data.photoUrl;
       }
-
+  
       return response.data;
     } catch (error) {
       console.error("UpdateUser error:", error.response || error.message);
       throw error;
     }
-  },
+  }
 };
 
 export default UserService;

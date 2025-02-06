@@ -1,6 +1,6 @@
 <template>
   <div class="group-chat">
-    <div class="messages-container">
+    <div class="messages-container" ref="messagesContainer">
       <div v-for="message in messages" :key="message.id" class="message" :class="{
         'my-message': message.senderId === currentUser.id,
         'other-message': message.senderId !== currentUser.id
@@ -24,8 +24,8 @@
 
 <script setup>
 import MessageService from "@/services/MessageService";
-import { useUserStore } from '@/stores/userStore';
-import { defineProps, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useUserStore } from "@/stores/user";
+import { computed, defineProps, nextTick, onMounted, ref, watch } from 'vue';
 
 const props = defineProps({
   groupId: {
@@ -34,21 +34,21 @@ const props = defineProps({
   },
 });
 
+const userStore = useUserStore();
+const currentUser = computed(() => userStore.getUser);
+
+const messages = ref([]);
+const newMessage = ref("");
+const messagesContainer = ref(null);
+
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
   return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 };
 
-const userStore = useUserStore();
-const currentUser = ref(userStore.currentUser);
-
-const messages = ref([]);
-const newMessage = ref("");
-
 const initializeChat = async () => {
   try {
     const groupIdAsNumber = Number(props.groupId);
-
     if (isNaN(groupIdAsNumber)) {
       console.error("Invalid groupId:", props.groupId);
       return;
@@ -67,10 +67,12 @@ const initializeChat = async () => {
 
 const handleMessageReceived = (message) => {
   messages.value.push(message);
+  scrollToBottom();
 };
 
 const handleHistoryReceived = (history) => {
   messages.value = history;
+  scrollToBottom();
 };
 
 const handleError = (error) => {
@@ -84,9 +86,15 @@ const sendMessage = async () => {
     return;
   }
 
+  if (!currentUser.value || !currentUser.value.id) {
+    console.error("User not logged in or user id is missing");
+    return;
+  }
+
   const messageDto = {
     content: newMessage.value,
-    senderId: currentUser.value.id,
+    senderId: Number(currentUser.value.id),
+    senderName: `${currentUser.value.firstName} ${currentUser.value.lastName}`,
     groupId: groupIdAsNumber,
   };
 
@@ -96,6 +104,15 @@ const sendMessage = async () => {
   } catch (err) {
     console.error("Failed to send message:", err);
   }
+  scrollToBottom();
+};
+
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (messagesContainer.value) {
+      messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+    }
+  });
 };
 
 watch(
@@ -112,13 +129,15 @@ watch(
 );
 
 onMounted(() => {
-  initializeChat();
-});
-
-onBeforeUnmount(() => {
-  MessageService.disconnect();
+  if (currentUser.value && currentUser.value.id) {
+    initializeChat();
+  } else {
+    console.error("User not authenticated. Please log in.");
+  }
 });
 </script>
+
+
 
 <style scoped>
 .group-chat {
@@ -131,12 +150,15 @@ onBeforeUnmount(() => {
 }
 
 .messages-container {
+  display: flex;
+  flex-direction: column;
   padding: 10px;
   border: 1px solid gray;
   border-radius: 8px;
   background-color: white;
   overflow-y: auto;
   max-height: calc(100vh - 150px);
+  flex-grow: 1;
 }
 
 .message {

@@ -8,7 +8,8 @@
 
       <ul class="navbar-nav me-auto mb-md-0">
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" id="eventsDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
             Wydarzenia
           </a>
           <ul class="dropdown-menu" aria-labelledby="eventsDropdown">
@@ -16,19 +17,19 @@
               <router-link to="/events" class="dropdown-item">Przeglądaj wydarzenia w okolicy</router-link>
             </li>
             <li>
-              <hr class="dropdown-divider">
+              <hr class="dropdown-divider" />
             </li>
             <li>
               <router-link to="/event/create" class="dropdown-item">Zorganizuj wydarzenie</router-link>
             </li>
             <li>
-              <hr class="dropdown-divider">
+              <hr class="dropdown-divider" />
             </li>
             <li>
               <router-link to="/my-events" class="dropdown-item">Moje wydarzenia</router-link>
             </li>
             <li>
-              <hr class="dropdown-divider">
+              <hr class="dropdown-divider" />
             </li>
             <li>
               <router-link to="/users" class="dropdown-item">Użytkownicy online</router-link>
@@ -37,20 +38,22 @@
         </li>
       </ul>
 
-      <div v-if="isLoggedIn" class="dropdown">
-        <img v-if="currentUser.photoUrl" :src="currentUser.photoUrl" alt="user main image" width="40" height="40" class="me-3" />
-        <img v-else src="@/assets/image/user.png" alt="User profile image" width="40" height="40" class="me-3" />
+      <div v-if="authStore.isAuthenticated" class="dropdown">
+        <img v-if="userStore.getUserPhoto" :src="userStore.getUserPhoto" alt="User profile image" width="40" height="40" class="me-3 rounded-circle" />
+        <img v-else src="@/assets/image/user.png" alt="Default user profile image" width="40" height="40" class="me-3 rounded-circle" />
 
-        <a class="dropdown-toggle text-light text-decoration-none" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-          {{ currentUser.firstName }} {{ currentUser.lastName }}
+        <a class="dropdown-toggle text-light text-decoration-none" href="#" role="button" id="dropdownMenuLink"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          {{ userStore.getUser?.firstName }} {{ userStore.getUser?.lastName }}
         </a>
 
         <ul class="dropdown-menu mt-3" aria-labelledby="dropdownMenuLink">
           <li>
-            <router-link to="/profile" class="dropdown-item">Mój profil <i class="bi bi-person-square"></i></router-link>
+            <router-link to="/profile" class="dropdown-item">Mój profil <i
+                class="bi bi-person-square"></i></router-link>
           </li>
           <li>
-            <hr class="dropdown-divider">
+            <hr class="dropdown-divider" />
           </li>
           <li>
             <a class="dropdown-item" href="#" @click="logout">Wyloguj <i class="bi bi-box-arrow-left "></i></a>
@@ -71,16 +74,17 @@
 </template>
 
 <script setup>
-import { useUserStore } from '@/stores/userStore';
-import { computed } from 'vue';
+import { useAuthStore } from "@/stores/auth";
+import { useUserStore } from "@/stores/user";
+import { useToast } from "vue-toastification";
 
+const toast = useToast();
+const authStore = useAuthStore();
 const userStore = useUserStore();
 
-const currentUser = computed(() => userStore.currentUser);
-const isLoggedIn = computed(() => userStore.currentUser !== null);
-
-const logout = async () => {
-  userStore.logout();
+const logout = () => {
+  authStore.logout();
+  toast.success("Zostałeś wylogowany");
 };
 </script>
 

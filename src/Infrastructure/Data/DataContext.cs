@@ -11,9 +11,12 @@ namespace Infrastructure.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
-        public DbSet<Group> Groups { get; set; }
-        public DbSet<GroupMember> GroupMembers { get; set; }
-        public DbSet<Message> Messages { get; set; }
+        public DbSet<EventAttendee> EventAttendees { get; set; }
+        public DbSet<EventMessage> EventMessages { get; set; }
+        public DbSet<Friendship> Friendships { get; set; }
+        public DbSet<PrivateMessage> PrivateMessages { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        
 
         public override int SaveChanges()
         {

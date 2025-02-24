@@ -1,3 +1,4 @@
+using Application.Interfaces;
 using Domain.Interfaces;
 using Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,10 +10,13 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IGroupRepository, GroupRepository>();
-        services.AddScoped<IGroupMemberRepository, GroupMemberRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
-        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<IEventAttendeeRepository, EventAttendeeRepository>();
+        services.AddScoped<IEventMessageRepository, EventMessageRepository>();
+        services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+        services.AddScoped<IPrivateMessageRepository, PrivateMessageRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+
 
         return services;
     }

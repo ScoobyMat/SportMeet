@@ -16,8 +16,10 @@
         public string? PhotoPublicId { get; set; }
 
         public int CreatedByUserId { get; set; }
-        public User CreatedByUser { get; set; } = null!;
+        public User CreatedByUser { get; set; }
 
-        public Group Group { get; set; } = null!;
+
+        public ICollection<EventAttendee> Attendees { get; set; }
+        public ICollection<EventMessage> EventMessages { get; set; }
     }
 }

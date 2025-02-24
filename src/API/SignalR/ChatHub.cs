@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿/*using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Threading.Tasks;
 using Application.Dtos.MessageDtos;
@@ -44,3 +44,4 @@ public class ChatHub : Hub
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
     }
 }
+*/

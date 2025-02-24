@@ -1,4 +1,5 @@
 using Domain.Common;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -16,6 +17,27 @@ namespace Domain.Entities
         public string? PreferredSports { get; set; }
         public string? PhotoUrl { get; set; }
         public string? PhotoPublicId { get; set; }
+
+        public ICollection<Event> CreatedEvents { get; set; }
+        public ICollection<EventAttendee> EventAttendees { get; set; }
+        public ICollection<EventMessage> EventMessages { get; set; }
+
+
+        [InverseProperty(nameof(Friendship.Requestor))]
+        public ICollection<Friendship> FriendshipsInitiated { get; set; } = new List<Friendship>();
+
+        [InverseProperty(nameof(Friendship.Addressee))]
+        public ICollection<Friendship> FriendshipsReceived { get; set; } = new List<Friendship>();
+
+
+        [InverseProperty(nameof(PrivateMessage.Sender))]
+        public ICollection<PrivateMessage> SentPrivateMessages { get; set; }
+
+        [InverseProperty(nameof(PrivateMessage.Recipient))]
+        public ICollection<PrivateMessage> ReceivedPrivateMessages { get; set; }
+
+
+        public ICollection<Notification> Notifications { get; set; }
 
         public int GetAge()
         {

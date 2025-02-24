@@ -4,12 +4,17 @@ namespace Application.Interfaces
 {
     public interface IEventService
     {
-        Task<IEnumerable<EventDto>> GetAllEventsAsync();
-        Task<EventDto?> GetEventByIdAsync(int eventId);
-        Task<List<EventDto>> GetFilteredEventsAsync(string? location, string? sportType, DateOnly? startDate, DateOnly? endDate);
-        Task<IEnumerable<EventDto>> GetUpcomingEventsForUserAsync(int userId);
-        Task<EventDto?> AddEventAsync(EventCreateDto eventCreateDto);
-        Task UpdateEventAsync(EventUpdateDto eventUpdateDto);
-        Task DeleteEventAsync(int eventId);
+        Task<EventDto> CreateAsync(EventCreateDto dto);
+        Task<EventDto> UpdateAsync(EventUpdateDto dto);
+        Task<EventDto?> GetByIdAsync(int id);
+        Task<IEnumerable<EventDto>> GetAllAsync();
+        Task DeleteAsync(int id);
+
+        Task JoinEventAsync(int eventId, int userId);
+        // ewentualnie: Task LeaveEventAsync(int eventId, int userId);
+
+        Task<List<EventDto>> GetUpcomingEventsForUserAsync(int userId);
+        Task<List<EventDto>> GetManagedEventsAsync(int userId);
+        Task<List<EventDto>> SearchEventsAsync(EventSearchDto searchDto);
     }
 }

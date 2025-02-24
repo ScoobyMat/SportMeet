@@ -1,5 +1,4 @@
 ﻿using Application.Dtos.EventDtos;
-using Application.Dtos.GroupDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -10,176 +9,124 @@ namespace Application.Services
     public class EventService : IEventService
     {
         private readonly IEventRepository _eventRepository;
-        private readonly IGroupService _groupService;
-        private readonly IPhotoService _photoService;
-        private readonly IGeoCodingService _geoCodingService;
+        private readonly IUserRepository _userRepository;
+        private readonly IEventAttendeeRepository _attendeeRepository;
         private readonly IMapper _mapper;
 
-        public EventService(IEventRepository eventRepository, IGroupService groupService, IPhotoService photoService, IGeoCodingService geoCodingService, IMapper mapper)
+        public EventService(
+            IEventRepository eventRepository,
+            IUserRepository userRepository,
+            IEventAttendeeRepository attendeeRepository,
+            IMapper mapper)
         {
             _eventRepository = eventRepository;
-            _groupService = groupService;
-            _photoService = photoService;
-            _geoCodingService = geoCodingService;
+            _userRepository = userRepository;
+            _attendeeRepository = attendeeRepository;
             _mapper = mapper;
         }
 
-        public async Task<EventDto?> AddEventAsync(EventCreateDto eventDto)
+        public async Task<EventDto> CreateAsync(EventCreateDto dto)
         {
-            var newEvent = _mapper.Map<Event>(eventDto);
+            var creator = await _userRepository.GetByIdAsync(dto.CreatedByUserId);
+            if (creator == null) throw new KeyNotFoundException("Creator user not found.");
 
-            var geoCodingResult = await _geoCodingService.GetCoordinatesAsync(newEvent);
-            if (geoCodingResult == null)
+            var ev = _mapper.Map<Event>(dto);
+            ev.Created = DateTime.UtcNow;
+
+            await _eventRepository.AddAsync(ev);
+
+            var attendee = new EventAttendee
             {
-                throw new InvalidOperationException("Failed to retrieve coordinates for the event location.");
-            }
-
-            newEvent = geoCodingResult;
-
-
-            if (eventDto.Photo != null)
-            {
-                var uploadResult = await _photoService.AddPhotoAsync(eventDto.Photo, "event");
-
-                newEvent.PhotoUrl = uploadResult.Url.ToString();
-                newEvent.PhotoPublicId = uploadResult.PublicId;
-            }
-
-            await _eventRepository.AddAsync(newEvent);
-
-            var groupCreateDto = new GroupCreateDto
-            {
-                EventId = newEvent.Id,
-                CreatedByUserId = newEvent.CreatedByUserId,
-                MaxMembers = newEvent.MaxParticipants,
+                EventId = ev.Id,
+                UserId = dto.CreatedByUserId,
+                Role = "Owner",
             };
+            await _attendeeRepository.AddAsync(attendee);
 
-            try
-            {
-                await _groupService.CreateGroupAsync(groupCreateDto);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Failed to create associated group.", ex);
-            }
-
-            var createdEvent = await _eventRepository.GetByIdAsync(newEvent.Id);
-            if (createdEvent == null)
-            {
-                throw new InvalidOperationException("Failed to retrieve the newly created event.");
-            }
-
-            var eventDtoMapped = _mapper.Map<EventDto>(createdEvent);
-            return eventDtoMapped;
+            return _mapper.Map<EventDto>(ev);
         }
 
-        public async Task DeleteEventAsync(int eventId)
+        public async Task<EventDto> UpdateAsync(EventUpdateDto dto)
         {
-            var eventToDelete = await _eventRepository.GetByIdAsync(eventId);
-            if (eventToDelete == null)
-            {
-                throw new KeyNotFoundException($"Event not found.");
-            }
+            var ev = await _eventRepository.GetByIdAsync(dto.Id);
+            if (ev == null) throw new KeyNotFoundException("Event not found.");
 
-            if (eventToDelete.PhotoPublicId != null)
-            {
-                await _photoService.DeletePhotoAsync(eventToDelete.PhotoPublicId);
+            _mapper.Map(dto, ev);
+            ev.LastModified = DateTime.UtcNow;
 
-                eventToDelete.PhotoUrl = null;
-                eventToDelete.PhotoPublicId = null;
+            await _eventRepository.UpdateAsync(ev);
 
-                await _eventRepository.UpdateAsync(eventToDelete);
-            }
-
-            await _eventRepository.DeleteAsync(eventToDelete);
+            return _mapper.Map<EventDto>(ev);
         }
 
-        public async Task<IEnumerable<EventDto>> GetAllEventsAsync()
+        public async Task<EventDto?> GetByIdAsync(int id)
+        {
+            var ev = await _eventRepository.GetByIdAsync(id);
+            if (ev == null) throw new KeyNotFoundException("Event not found.");
+
+            return _mapper.Map<EventDto>(ev);
+        }
+
+        public async Task<IEnumerable<EventDto>> GetAllAsync()
         {
             var events = await _eventRepository.GetAllAsync();
-            if (events == null || !events.Any())
-            {
-                throw new InvalidOperationException("No events were found.");
-            }
-
             return _mapper.Map<IEnumerable<EventDto>>(events);
         }
 
-        public async Task<EventDto?> GetEventByIdAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            var eventEntity = await _eventRepository.GetByIdAsync(id);
-            if (eventEntity == null)
-            {
-                throw new KeyNotFoundException($"Event not found.");
-            }
+            var ev = await _eventRepository.GetByIdAsync(id);
+            if (ev == null) throw new KeyNotFoundException("Event not found.");
 
-            var eventDto = _mapper.Map<EventDto>(eventEntity);
-            return eventDto;
+            await _eventRepository.DeleteAsync(ev);
         }
 
-        public async Task<List<EventDto>> GetFilteredEventsAsync(string? location, string? sportType, DateOnly? startDate, DateOnly? endDate)
+        public async Task JoinEventAsync(int eventId, int userId)
         {
-            var events = await _eventRepository.GetFilteredEventsAsync(location, sportType, startDate, endDate);
-            if (events == null || !events.Any())
+            var ev = await _eventRepository.GetByIdAsync(eventId);
+            if (ev == null) throw new KeyNotFoundException("Event not found.");
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) throw new KeyNotFoundException("User not found.");
+
+            var existing = (await _attendeeRepository.GetByEventIdAsync(eventId))
+                .FirstOrDefault(a => a.UserId == userId);
+
+            if (existing != null)
             {
-                return new List<EventDto>();
+                return;
             }
 
+            var attendee = new EventAttendee
+            {
+                EventId = eventId,
+                UserId = userId,
+                Role = "Participant",
+            };
+            await _attendeeRepository.AddAsync(attendee);
+        }
+
+        public async Task<List<EventDto>> GetUpcomingEventsForUserAsync(int userId)
+        {
+            var events = await _eventRepository.GetUpcomingEventsForUserAsync(userId);
             return _mapper.Map<List<EventDto>>(events);
         }
 
-        public async Task<IEnumerable<EventDto>> GetUpcomingEventsForUserAsync(int userId)
+        public async Task<List<EventDto>> GetManagedEventsAsync(int userId)
         {
-            var events = await _eventRepository.GetUpcomingEventsForUserAsync(userId);
-
-            if (events == null || !events.Any())
-            {
-                return new List<EventDto>();
-            }
-
-            return _mapper.Map<IEnumerable<EventDto>>(events);
+            var events = await _eventRepository.GetManagedEventsAsync(userId);
+            return _mapper.Map<List<EventDto>>(events);
         }
 
-        public async Task UpdateEventAsync(EventUpdateDto eventUpdateDto)
+        public async Task<List<EventDto>> SearchEventsAsync(EventSearchDto searchDto)
         {
-            var eventToUpdate = await _eventRepository.GetByIdAsync(eventUpdateDto.Id);
-            if (eventToUpdate == null)
-            {
-                throw new InvalidOperationException($"Event not found.");
-            }
-
-            if (eventUpdateDto.Photo != null)
-            {
-                if (eventToUpdate.PhotoPublicId != null)
-                {
-                    await _photoService.DeletePhotoAsync(eventToUpdate.PhotoPublicId);
-                }
-
-                var uploadResult = await _photoService.AddPhotoAsync(eventUpdateDto.Photo, "event");
-
-                eventToUpdate.PhotoUrl = uploadResult.Url.ToString();
-                eventToUpdate.PhotoPublicId = uploadResult.PublicId;
-            }
-
-            if (!string.IsNullOrWhiteSpace(eventUpdateDto.Address) || !string.IsNullOrWhiteSpace(eventUpdateDto.City))
-            {
-                eventToUpdate.Address = eventUpdateDto.Address;
-                eventToUpdate.City = eventUpdateDto.City;
-
-                var geoCodedEvent = await _geoCodingService.GetCoordinatesAsync(eventToUpdate);
-                if (geoCodedEvent != null)
-                {
-                    eventToUpdate.Latitude = geoCodedEvent.Latitude;
-                    eventToUpdate.Longitude = geoCodedEvent.Longitude;
-                }
-                else
-                {
-                    throw new InvalidOperationException("Could not determine coordinates for the given address.");
-                }
-            }
-
-            _mapper.Map(eventUpdateDto, eventToUpdate);
-            await _eventRepository.UpdateAsync(eventToUpdate);
+            var events = await _eventRepository.SearchEventsAsync(
+                searchDto.City,
+                searchDto.From,
+                searchDto.To,
+                searchDto.SportType
+            );
+            return _mapper.Map<List<EventDto>>(events);
         }
 
     }

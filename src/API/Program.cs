@@ -31,7 +31,7 @@ app.UseHttpsRedirection();
 
 app.UseCors("CorsPolicy");
 app.MapHub<PresenceHub>("hubs/presence");
-app.MapHub<ChatHub>("/chatHub");
+//app.MapHub<ChatHub>("/chatHub");
 
 
 app.UseAuthentication();

@@ -13,12 +13,14 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IEventService, EventService>();
-        services.AddScoped<IGroupService, GroupService>();
-        services.AddScoped<IGroupMemberService, GroupMemberService>();
         services.AddScoped<IPhotoService, PhotoService>();
-        services.AddScoped<IMessageService, MessageService>();
         services.AddScoped<IGeoCodingService, GeoCodingService>();
+        services.AddScoped<IEventService, EventService>();
+        services.AddScoped<IEventAttendeeService, EventAttendeeService>();
+        services.AddScoped<IFriendshipService, FriendshipService>();
+        services.AddScoped<IEventMessageService, EventMessageService>();
+        services.AddScoped<IPrivateMessageService, PrivateMessageService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         return services;
     }

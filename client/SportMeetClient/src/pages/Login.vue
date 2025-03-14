@@ -69,6 +69,12 @@ const login = async () => {
 
 <style scoped>
 .card {
+  align-items: center;
   width: 60%;
+}
+
+img {
+  width: 150px;
+  height: 150px;
 }
 </style>

@@ -1,14 +1,26 @@
 <template>
-  <div class="group-chat">
+  <div class="chat-container">
     <div class="messages-container" ref="messagesContainer">
-      <div v-for="message in messages" :key="message.id" class="message" :class="{
-        'my-message': message.senderId === currentUser.id,
-        'other-message': message.senderId !== currentUser.id
-      }">
+      <div
+        v-for="message in messages"
+        :key="message.id"
+        class="message"
+        :class="{
+          'my-message': message.senderId === currentUser.id,
+          'other-message': message.senderId !== currentUser.id
+        }"
+      >
         <div class="message-bubble">
           <div class="message-header">
-            <span class="sender-name">{{ message.senderName }}</span>
-            <span class="timestamp">{{ formatTimestamp(message.sentAt) }}</span>
+            <div class="sender-info">
+              <img
+                class="sender-photo"
+                :src="message.senderPhotoUrl"
+                alt="Zdjęcie użytkownika"
+              />
+              <span class="sender-name">{{ message.senderName }}</span>
+            </div>
+            <span class="timestamp">{{ formatTimestamp(message.created) }}</span>
           </div>
           <p class="message-content">{{ message.content }}</p>
         </div>
@@ -16,20 +28,28 @@
     </div>
 
     <form @submit.prevent="sendMessage">
-      <input v-model="newMessage" placeholder="Type your message..." required />
-      <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i></button>
+      <input v-model="newMessage" placeholder="Napisz wiadomość..." required />
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-send"></i>
+      </button>
     </form>
   </div>
 </template>
 
+
 <script setup>
-import MessageService from "@/services/MessageService";
+import EventChatService from "@/services/EventChatService";
+import PrivateChatService from "@/services/PrivateChatService";
 import { useUserStore } from "@/stores/user";
-import { computed, defineProps, nextTick, onMounted, ref, watch } from 'vue';
+import { computed, defineProps, nextTick, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
-  groupId: {
+  chatType: {
     type: String,
+    required: true,
+  },
+  chatId: {
+    type: [Number, String],
     required: true,
   },
 });
@@ -43,23 +63,27 @@ const messagesContainer = ref(null);
 
 const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
-  return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 };
 
 const initializeChat = async () => {
   try {
-    const groupIdAsNumber = Number(props.groupId);
-    if (isNaN(groupIdAsNumber)) {
-      console.error("Invalid groupId:", props.groupId);
+    if (!currentUser.value || !currentUser.value.id) {
+      console.error("User not authenticated. Please log in.");
       return;
     }
-
-    await MessageService.initialize(
-      groupIdAsNumber,
-      handleMessageReceived,
-      handleHistoryReceived,
-      handleError
-    );
+    if (props.chatType === "group") {
+      await EventChatService.initialize(props.chatId, handleMessageReceived, handleHistoryReceived);
+    } else if (props.chatType === "private") {
+      await PrivateChatService.initialize(
+        Number(currentUser.value.id),
+        Number(props.chatId),
+        handleMessageReceived,
+        handleHistoryReceived
+      );
+    } else {
+      console.error("Invalid chat type:", props.chatType);
+    }
   } catch (err) {
     console.error("Failed to initialize chat:", err);
   }
@@ -75,31 +99,21 @@ const handleHistoryReceived = (history) => {
   scrollToBottom();
 };
 
-const handleError = (error) => {
-  console.error("Chat error:", error);
-};
-
 const sendMessage = async () => {
-  const groupIdAsNumber = Number(props.groupId);
-  if (isNaN(groupIdAsNumber)) {
-    console.error("Invalid groupId:", props.groupId);
-    return;
-  }
-
-  if (!currentUser.value || !currentUser.value.id) {
-    console.error("User not logged in or user id is missing");
-    return;
-  }
+  if (!newMessage.value.trim()) return;
 
   const messageDto = {
     content: newMessage.value,
     senderId: Number(currentUser.value.id),
-    senderName: `${currentUser.value.firstName} ${currentUser.value.lastName}`,
-    groupId: groupIdAsNumber,
+    senderName: `${currentUser.value.firstName} ${currentUser.value.lastName}`
   };
 
   try {
-    await MessageService.sendMessage(messageDto);
+    if (props.chatType === "group") {
+      await EventChatService.sendMessage(messageDto);
+    } else if (props.chatType === "private") {
+      await PrivateChatService.sendMessage(newMessage.value);
+    }
     newMessage.value = "";
   } catch (err) {
     console.error("Failed to send message:", err);
@@ -116,31 +130,30 @@ const scrollToBottom = () => {
 };
 
 watch(
-  () => props.groupId,
-  async (newGroupId) => {
-    const newGroupIdAsNumber = Number(newGroupId);
-    if (isNaN(newGroupIdAsNumber)) {
-      console.error("Invalid groupId:", newGroupId);
-      return;
+  () => currentUser.value,
+  async (newUser) => {
+    if (newUser && newUser.id) {
+      await initializeChat();
     }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.chatId,
+  async () => {
     await initializeChat();
   },
   { immediate: true }
 );
 
-onMounted(() => {
-  if (currentUser.value && currentUser.value.id) {
-    initializeChat();
-  } else {
-    console.error("User not authenticated. Please log in.");
-  }
-});
+onMounted(() => initializeChat());
 </script>
 
 
 
 <style scoped>
-.group-chat {
+.chat-container {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -197,6 +210,19 @@ onMounted(() => {
   margin-bottom: 5px;
 }
 
+.sender-info {
+  display: flex;
+  align-items: center;
+}
+
+.sender-photo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+}
+
 .sender-name {
   font-weight: bold;
   color: white;
@@ -220,7 +246,8 @@ input {
 
 p {
   text-align: left;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-size: 1.2em;
 }
 </style>
+

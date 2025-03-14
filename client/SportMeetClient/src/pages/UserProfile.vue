@@ -1,138 +1,115 @@
 <template>
-  <div v-if="authStore.isAuthenticated" class="container">
-    <div class="row">
-      <div class="col-md-6 card">
-        <img
-          :src="userStore.getUserPhoto || userImage"
-          alt="Zdjęcie użytkownika"
-          class="card-img-top"
-        />
-        <div class="card-body">
-          <strong v-if="user.gender === 'Mężczyzna'">Pan:</strong>
-          <strong v-else-if="user.gender === 'Kobieta'">Pani:</strong>
-          <p>{{ user.firstName || 'Nieznane' }} {{ user.lastName || 'Nieznane' }}</p>
-
-          <strong>Email:</strong>
-          <p>{{ user.email || 'Brak informacji' }}</p>
-
-          <strong>Wiek:</strong>
-          <p>{{ user.age || 'Brak informacji' }}</p>
-
-          <strong>Płeć:</strong>
-          <p>{{ user.gender || 'Brak informacji' }}</p>
-
-          <strong>Mieszka w:</strong>
-          <p>
-            {{ user.city || 'Brak informacji' }},
-            {{ user.country || 'Brak informacji' }}
-          </p>
+    <div class="container">
+      <div v-if="user">
+        <div class="row">
+          <div class="col-md-6 card">
+            <img :src="user.photoUrl || defaultUserImage" alt="Zdjęcie użytkownika" class="card-img-top" />
+            <div class="card-body">
+              <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+              <h2>({{ user.userName }})</h2>
+              <hr>
+              <p><strong>Wiek:</strong> {{ user.age }}</p>
+              <p><strong>Płeć:</strong> {{ user.gender }}</p>
+              <p><strong>Mieszka w:</strong> {{ user.city }}, {{ user.country }}</p>
+            </div>
+          </div>
+  
+          <div class="col-md-6">
+            <div class="small-card">
+              <h4>O mnie:</h4>
+              <blockquote class="user-description">
+                <p>{{ user.description || 'Brak opisu' }}</p>
+              </blockquote>
+            </div>
+  
+            <div class="small-card">
+              <h4>Zainteresowania:</h4>
+              <ul class="preferred-sports-list">
+                <li v-if="parsedPreferredSports.length > 0" v-for="(sport, index) in parsedPreferredSports" :key="index">
+                  <i class="bi bi-check-circle"></i> {{ sport }}
+                </li>
+                <li v-else>Brak zdefiniowanych zainteresowań.</li>
+              </ul>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-primary btn-lg mb-5" @click="goToEditProfile">
-          Edytuj profil
-        </button>
       </div>
-
-      <div class="col-md-6">
-        <div class="small-card">
-          <h4>O mnie:</h4>
-          <blockquote class="user-description">
-            <p>{{ user.description || 'Brak opisu.' }}</p>
-          </blockquote>
-        </div>
-
-        <div class="small-card">
-          <h4>Zainteresowania:</h4>
-          <ul class="preferred-sports-list">
-            <li v-if="user.preferredSports.length > 0" v-for="(sport, index) in user.preferredSports" :key="index">
-              <i class="bi bi-check-circle"></i> {{ sport }}
-            </li>
-            <li v-else>Brak zdefiniowanych zainteresowań.</li>
-          </ul>
-        </div>
+      <div v-else>
+        <p>Profil nie został znaleziony.</p>
       </div>
     </div>
-  </div>
-</template>
-
-<script setup>
-import userImage from "@/assets/image/user.png";
-import { useAuthStore } from "@/stores/auth";
-import { useUserStore } from "@/stores/user";
-import { computed, onMounted } from "vue";
-import { useRouter } from "vue-router";
-
-const authStore = useAuthStore();
-const userStore = useUserStore();
-const router = useRouter();
-
-onMounted(() => {
-  if (authStore.isAuthenticated && authStore.getUserId) {
-    userStore.fetchUser(authStore.getUserId);
-  }
-});
-
-const user = computed(() => {
-  const userData = userStore.getUser || {};
-  return {
-    ...userData,
-    preferredSports: Array.isArray(userData.preferredSports)
-      ? userData.preferredSports
-      : (userData.preferredSports || "").split(",").map((s) => s.trim()),
+  </template>
+  
+  <script setup>
+  import defaultUserImage from "@/assets/image/user.png";
+import UserService from "@/services/UserService";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+  
+  const route = useRoute();
+  const user = ref(null);
+  
+  const fetchUserProfile = async () => {
+    try {
+      const username = route.params.username;
+      user.value = await UserService.getUserByUsername(username);
+    } catch (error) {
+      console.error("Błąd pobierania profilu użytkownika:", error);
+    }
   };
-});
-
-const goToEditProfile = () => {
-  router.push({ name: "UserProfileEdit" });
-};
-</script>
-
-
-<style scoped>
-.user-description {
-  font-style: italic;
-  border-left: 4px solid #007bff;
-  padding: 10px 15px;
-  margin-top: 10px;
-  font-size: 1.2rem;
-  color: #555;
-}
-
-.preferred-sports-list {
-  list-style-type: none;
-  padding-left: 0;
-  margin-top: 10px;
-}
-
-.preferred-sports-list li {
-  font-size: 1.2rem;
-  color: #555;
-}
-
-.preferred-sports-list i {
-  color: #28a745;
-  margin-right: 8px;
-}
-
-.card-img-top {
-  padding: 25px;
-  border-radius: 50%;
-  max-width: 80%;
-  max-height: 300px;
-  object-fit: cover;
-}
-
-.card-body strong {
-  font-size: 1.2rem;
-}
-
-.card-body p {
-  margin: 0;
-  font-size: 1.2rem;
-  color: #555;
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-}
-</style>
+  
+  onMounted(() => {
+    fetchUserProfile();
+  });
+  
+  const parsedPreferredSports = computed(() => {
+    if (!user.value || !user.value.preferredSports) return [];
+    return Array.isArray(user.value.preferredSports)
+      ? user.value.preferredSports
+      : user.value.preferredSports.split(",").map(s => s.trim());
+  });
+  </script>
+  
+  <style scoped>
+  .card-img-top {
+    padding: 25px;
+    border-radius: 50%;
+    max-width: 80%;
+    max-height: 300px;
+    object-fit: cover;
+  }
+  
+  .card {
+    align-items: center;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .user-description {
+    font-style: italic;
+    border-left: 4px solid #007bff;
+    padding: 10px 15px;
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: #555;
+  }
+  
+  .preferred-sports-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 10px;
+  }
+  
+  .preferred-sports-list li {
+    font-size: 1.2rem;
+    color: #555;
+  }
+  
+  .preferred-sports-list i {
+    color: #28a745;
+    margin-right: 8px;
+  }
+  </style>
+  

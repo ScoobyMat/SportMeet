@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "src\Domain\Domain
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "src\Application\Application.csproj", "{A604A947-3D2E-48F8-BD64-00B73F17C3D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{4D6984FA-20CD-4465-B94A-F8DD91F12506}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{4D6984FA-20CD-4465-B94A-F8DD91F12506}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SportMeet.UnitTests", "SportMeet.UnitTests\SportMeet.UnitTests.csproj", "{F143F87A-79E1-4847-B57F-EFA499E9B211}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{4D6984FA-20CD-4465-B94A-F8DD91F12506}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D6984FA-20CD-4465-B94A-F8DD91F12506}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D6984FA-20CD-4465-B94A-F8DD91F12506}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F143F87A-79E1-4847-B57F-EFA499E9B211}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F143F87A-79E1-4847-B57F-EFA499E9B211}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F143F87A-79E1-4847-B57F-EFA499E9B211}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F143F87A-79E1-4847-B57F-EFA499E9B211}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

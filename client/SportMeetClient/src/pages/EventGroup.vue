@@ -1,36 +1,43 @@
 <template>
-    <div>
+    <div class="event-group">
         <div class="row">
             <div v-if="showMembers" class="col-lg-3 col-md-12 card">
-                <button class="btn btn-sm btn-secondary mb-3 w-100" @click="toggleMembers">Ukryj listę członków</button>
-                <ul>
+                <button class="btn btn-sm btn-secondary mb-3 w-100" @click="toggleMembers">
+                    {{ showMembers ? 'Ukryj listę członków' : 'Pokaż listę członków' }}
+                </button>
+                <ul class="members-list">
                     <li v-for="member in members" :key="member.userId">
-                        <span>{{ member.firstName }} {{ member.lastName }} - {{ member.role }}</span>
+                        <img :src="member.photoUrl || defaultUserImage" alt="User photo" class="member-img" />
+                        <span>
+                            {{ member.firstName }} {{ member.lastName }}
+                            <i v-if="member.role === 'Owner'" class="bi bi-star-fill" title="Administrator"></i>
+                            <i v-else class="bi bi-person-fill" title="Członek"></i>
+                        </span>
                     </li>
                 </ul>
             </div>
 
             <div :class="showMembers ? 'col-lg-6 col-md-12' : 'col-lg-9 col-md-12'" class="event-chat card">
-                <button v-if="!showMembers" class="btn btn-sm btn-secondary mb-3 w-100" @click="toggleMembers">Pokaż
-                    listę członków</button>
+                <button v-if="!showMembers" class="btn btn-sm btn-secondary mb-3 w-100" @click="toggleMembers">
+                    Pokaż listę członków
+                </button>
                 <h4>Czat grupowy</h4>
-                <GroupChat :groupId="String(groupId)" />
+                <ChatComponent chatType="group" :chatId="Number(eventId)" />
             </div>
 
             <div class="col-lg-3 col-md-12 card">
                 <div v-if="event">
                     <div class="event-card">
-                        <img :src="event.eventPhotoUrl || sportImages[event.sportType]" alt="Event Photo"
-                            class="event-img">
-                        <h3>{{ event.eventName }}</h3>
+                        <img :src="event.photoUrl || sportImages[event.sportType]" alt="Event Photo" class="event-img mb-2">
+                        <h4>{{ event.eventName }}</h4>
                         <p><strong>Sport:</strong> {{ event.sportType }}</p>
                         <p><strong>Opis:</strong> {{ event.description }}</p>
                         <p><strong>Gdzie:</strong> {{ event.address }}, {{ event.city }}</p>
                         <p><strong>Kiedy:</strong> {{ event.date }} | {{ event.time }}</p>
+                        <p><strong>Uczestnicy:</strong> {{ members.length }}/{{ event.maxParticipants }}</p>
                     </div>
                     <HereMap :center="center" :markers="[center]" :mapHeight="'350px'" :mapWidth="'100%'" />
                 </div>
-
                 <div v-else>
                     <p>Ładowanie szczegółów wydarzenia...</p>
                 </div>
@@ -40,40 +47,39 @@
 </template>
 
 <script setup>
-import GroupChat from '@/components/Chat/GroupChat.vue';
+import defaultUserImage from '@/assets/image/user.png';
+import ChatComponent from '@/components/Chat/ChatComponent.vue';
 import HereMap from '@/components/Map/HereMap.vue';
 import { sportImages } from '@/constants/sports';
 import EventService from '@/services/EventService';
-import GroupService from '@/services/GroupService';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import EventAttendeesService from '../services/EventAttendeesService';
 
+const route = useRoute();
+const eventId = route.params.eventId;
 const event = ref(null);
 const members = ref([]);
 const center = ref({ lat: 52.2296756, lng: 21.0122287 });
 const showMembers = ref(true);
-const route = useRoute();
-const eventId = route.params.eventId;
-const groupId = ref(null);
 
 const fetchEvent = async () => {
     try {
-        const fetchedEvent = await EventService.GetEventById(eventId);
+        const fetchedEvent = await EventService.getEventById(eventId);
         event.value = fetchedEvent;
         center.value = { lat: fetchedEvent.latitude, lng: fetchedEvent.longitude };
-        groupId.value = fetchedEvent.groupId;
-        fetchGroup(fetchedEvent.groupId);
+        fetchMembers(eventId);
     } catch (error) {
         console.error('Błąd ładowania szczegółów eventu:', error);
     }
 };
 
-const fetchGroup = async (groupId) => {
+const fetchMembers = async (eventId) => {
     try {
-        const groupMembers = await GroupService.getGroupMembers(groupId);
-        members.value = groupMembers;
+        const attendees = await EventAttendeesService.getEventAttendees(eventId);
+        members.value = attendees;
     } catch (error) {
-        console.error('Błąd ładowania członków grupy:', error);
+        console.error('Błąd ładowania uczestników:', error);
     }
 };
 
@@ -87,40 +93,32 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.card {
-    justify-content: start;
-    align-items: none;
+.event-group {
+    padding: 1rem;
 }
 
-.event-members ul {
+.members-list {
     list-style: none;
     padding: 0;
 }
 
-.event-members li {
+.members-list li {
+    display: flex;
+    align-items: center;
     padding: 5px;
     border-bottom: 1px solid #ddd;
 }
 
-.event-chat .chat-box {
-    height: 100%;
-    width: 100%;
-    border: 1px solid #ddd;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f8f8f8;
+.member-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
 }
 
-.event-card img {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 1rem;
-}
-
-.event-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+.event-img {
+    width: 50%;
+    object-fit: cover;
 }
 
 .event-card {

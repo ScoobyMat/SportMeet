@@ -46,7 +46,19 @@ const UserService = {
       console.error("UpdateUser error:", error.response || error.message);
       throw error;
     }
-  }
+  },
+
+  async getUserByUsername(username) {
+    try {
+      const response = await apiClient.get(`/users/username/${username}`, {
+        requiresAuth: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching user with username ${username}:`, error);
+      throw error;
+    }
+  },
 };
 
 export default UserService;

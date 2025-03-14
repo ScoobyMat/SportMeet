@@ -55,10 +55,12 @@ export const useAuthStore = defineStore("auth", {
       const token = TokenService.getToken();
       if (token) {
         this.setToken(token);
-        useUserStore().fetchUser(this.userId);
-        const presenceStore = usePresenceStore();
-        presenceStore.initializeConnection();
-      }
-    },
+
+        const userStore = useUserStore();
+        userStore.fetchUser(this.userId).then(() => {
+          const presenceStore = usePresenceStore();
+          presenceStore.initializeConnection();
+        });
+    }
   },
-});
+}});

@@ -28,9 +28,10 @@ export const usePresenceStore = defineStore("presence", () => {
         onlineUsers.value = users;
       },
     };
+    
 
     connection = createHubConnection(
-      "https://localhost:7147/hubs/presence",
+      "presence",
       token,
       eventHandlers
     );

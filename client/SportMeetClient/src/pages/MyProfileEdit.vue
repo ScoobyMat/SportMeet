@@ -5,7 +5,7 @@
         <h2>Edytuj profil</h2>
         <div class="profileImageContainer">
           <label class="profileImage mb-5" for="fileInput">
-            <img v-if="imageUrl" :src="imageUrl" alt="Profile Image" />
+            <img v-if="imageUrl" :src="imageUrl" alt="Profile Image" class="Image" />
             <div v-else class="addImageIcon">+</div>
             <input type="file" id="fileInput" @change="handleFileChange" accept="image/jpeg, image/png" />
           </label>
@@ -164,8 +164,6 @@ const updateProfile = async () => {
   }
 };
 
-
-
 onMounted(() => {
     fetchUserData();
 });
@@ -173,31 +171,38 @@ onMounted(() => {
 
 <style scoped>
 .profileImageContainer {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
-
 .profileImage {
-  display: flex;
-  justify-content: center;
   cursor: pointer;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  overflow: hidden;
-  position: relative;
-  border: 1px solid black;
+  border: 1px solid #000;
   border-radius: 50%;
-  max-width: 50%;
-  height: 200px;
-  background: rgba(255, 255, 255, 0.25);
-  align-items: flex-start;
+  overflow: hidden;
+  width: 300px;
+  height: 300px;
+  position: relative;
 }
-
 .addImageIcon {
   font-size: 75px;
   color: #555;
-  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.imageArea {
+  border: 1px solid #ddd;
+  height: 300px;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.Image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 input[type="file"] {

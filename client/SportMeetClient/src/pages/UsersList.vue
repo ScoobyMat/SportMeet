@@ -1,52 +1,119 @@
-<script setup>
-import UserService from '@/services/UserService';
-import { usePresenceStore } from '@/stores/presenceStore';
-import { onMounted, ref } from 'vue';
+<template>
+  <div>
+    <div class="search-box mb-3">
+      <input
+        v-model="searchText"
+        type="text"
+        class="form-control"
+        placeholder="Szukaj użytkowników po imieniu lub nazwisku"
+      />
+    </div>
 
-const presenceStore = usePresenceStore();
-const users = ref([]);
+    <div v-if="filteredUsers.length > 0">
+      <h3>Użytkownicy:</h3>
+      <div class="user-cards">
+        <div v-for="user in filteredUsers" :key="user.id" class="user-card">
+          <div>
+            <img
+              :src="user.photoUrl || defaultUserImage"
+              alt="User Profile"
+              class="user-image"
+            />
+          </div>
+          <div class="user-details">
+            <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+            <p>{{ user.userName }}</p>
+            <div class="actions">
+              <button class="btn btn-info btn-sm" @click="goToProfile(user.userName)">
+                Zobacz profil
+              </button>
+              <button
+                v-if="user.id !== currentUserId"
+                class="btn btn-primary btn-sm"
+                @click="sendFriendRequest(user.id)"
+              >
+                Wyślij zaproszenie
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <p>Brak użytkowników spełniających kryteria wyszukiwania.</p>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import FriendService from "@/services/FriendService";
+import { useAuthStore } from "@/stores/auth";
+import { computed, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
+import UserService from "../services/UserService";
+
+
+const authStore = useAuthStore();
+const router = useRouter();
+const toast = useToast();
+
+const currentUserId = parseInt(authStore.getUserId);
+const defaultUserImage = "@/assets/image/user.png";
+
+const users = ref([]); 
+const searchText = ref("");
 
 const fetchUsers = async () => {
   try {
     users.value = await UserService.getUsers();
-    console.log('Pobrani użytkownicy:', users.value);
   } catch (error) {
-    console.error('Błąd podczas pobierania użytkowników', error);
+    console.error("Błąd podczas pobierania użytkowników", error);
   }
 };
 
 onMounted(() => {
   fetchUsers();
 });
-</script>
 
-<template>
-  <div>
-    <div v-if="users.length > 0">
-      <h3>Użytkownicy:</h3>
-      <div class="user-cards">
-        <div v-for="user in users" :key="user.id" class="user-card">
-          <img :src="user.photoUrl" alt="User Profile" class="user-image" />
-          <div class="user-details">
-            <h4>{{ user.firstName }}</h4>
-            <p>{{ user.email }}</p>
-            <span v-if="presenceStore.onlineUsers.includes(user.firstName)" class="online-status">Online</span>
-            <span v-else class="offline-status">Offline</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else>
-      <p>Brak użytkowników.</p>
-    </div>
-  </div>
-</template>
+const filteredUsers = computed(() => {
+  if (!searchText.value) {
+    return users.value;
+  }
+  const term = searchText.value.toLowerCase();
+  return users.value.filter((user) => {
+    return (
+      (user.firstName && user.firstName.toLowerCase().includes(term)) ||
+      (user.lastName && user.lastName.toLowerCase().includes(term))
+    );
+  });
+});
+
+const goToProfile = (userName) => {
+  router.push({ name: "UserProfile", params: { username: userName } });
+};
+
+const sendFriendRequest = async (userId) => {
+  try {
+    const requestDto = {
+      requestorId: parseInt(authStore.getUserId),
+      addresseeId: userId,
+    };
+    await FriendService.sendFriendRequest(requestDto);
+    toast.success("Zaproszenie zostalo wyslane");
+  } catch (error) {
+    console.error("Błąd wysyłania zaproszenia:", error);
+    toast.error("Zaproszenie już wysłane");
+  }
+};
+</script>
 
 <style scoped>
 .user-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
+  margin-top: 1rem;
 }
 
 .user-card {
@@ -68,13 +135,16 @@ onMounted(() => {
   margin-top: 10px;
 }
 
-.online-status {
-  color: green;
-  font-weight: bold;
+.actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
 }
 
-.offline-status {
-  color: red;
-  font-weight: bold;
+.search-box input {
+  max-width: 400px;
+  margin: 0 auto;
+  display: block;
 }
 </style>

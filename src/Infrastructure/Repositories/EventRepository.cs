@@ -1,5 +1,4 @@
-﻿using Application.Dtos.EventDtos;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +19,6 @@ namespace Infrastructure.Repositories
             return await _context.Events
                 .Include(e => e.CreatedByUser)
                 .Include(e => e.Attendees)
-                .ThenInclude(a => a.User)
                 .SingleOrDefaultAsync(e => e.Id == eventId);
         }
 
@@ -28,6 +26,7 @@ namespace Infrastructure.Repositories
         {
             return await _context.Events
                 .Include(e => e.CreatedByUser)
+                .Include(e => e.Attendees)
                 .ToListAsync();
         }
 
@@ -49,32 +48,81 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Event>> GetUpcomingEventsForUserAsync(int userId)
-        {
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
-            return await _context.Events
-                .Include(e => e.Attendees)
-                .Where(e => e.Date >= today)
-                .Where(e => e.CreatedByUserId == userId
-                            || e.Attendees.Any(a => a.UserId == userId))
-                .ToListAsync();
-        }
-
         public async Task<List<Event>> GetManagedEventsAsync(int userId)
         {
             return await _context.Events
+                .Include(e => e.CreatedByUser)
+                .Include(e => e.Attendees)
                 .Where(e => e.CreatedByUserId == userId)
+                .ToListAsync();
+        }
+
+        public async Task<List<Event>> GetUpcomingEventsAsync()
+        {
+            var now = DateTime.UtcNow;
+            var today = DateOnly.FromDateTime(now);
+            var currentTime = now.TimeOfDay;
+
+            return await _context.Events
+                .Where(e => e.Date > today || (e.Date == today && e.Time >= currentTime))
+                .Include(e => e.Attendees)
+                .ToListAsync();
+        }
+
+        public async Task<List<Event>> GetPastEventsAsync()
+        {
+            var now = DateTime.UtcNow;
+            var today = DateOnly.FromDateTime(now);
+            var currentTime = now.TimeOfDay;
+
+            return await _context.Events
+                .Where(e => e.Date < today || (e.Date == today && e.Time < currentTime))
+                .Include(e => e.Attendees)
+                .ToListAsync();
+        }
+
+        public async Task<List<Event>> GetUpcomingEventsForUserAsync(int userId)
+        {
+            var now = DateTime.UtcNow;
+            var today = DateOnly.FromDateTime(now);
+            var currentTime = now.TimeOfDay;
+
+            return await _context.Events
+                .Where(e =>
+                    (e.CreatedByUserId == userId ||
+                     (e.Attendees != null && e.Attendees.Any(a => a.UserId == userId)))
+                    && (e.Date > today || (e.Date == today && e.Time >= currentTime))
+                )
+                .Include(e => e.Attendees)
+                .ToListAsync();
+        }
+
+        public async Task<List<Event>> GetPastEventsForUserAsync(int userId)
+        {
+            var now = DateTime.UtcNow;
+            var today = DateOnly.FromDateTime(now);
+            var currentTime = now.TimeOfDay;
+
+            return await _context.Events
+                .Where(e =>
+                    (e.CreatedByUserId == userId ||
+                     (e.Attendees != null && e.Attendees.Any(a => a.UserId == userId)))
+                    && (e.Date < today || (e.Date == today && e.Time < currentTime))
+                )
+                .Include(e => e.Attendees)
                 .ToListAsync();
         }
 
         public async Task<List<Event>> SearchEventsAsync(string? city, DateOnly? from, DateOnly? to, string? sportType)
         {
-            var query = _context.Events.AsQueryable();
+            var query = _context.Events
+                .Include(e => e.CreatedByUser)
+                .Include(e => e.Attendees)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(city))
             {
-                query = query.Where(e => e.City == city);
+                query = query.Where(e => e.City.ToLower() == city.ToLower());
             }
 
             if (from.HasValue)
@@ -89,11 +137,12 @@ namespace Infrastructure.Repositories
 
             if (!string.IsNullOrEmpty(sportType))
             {
-                query = query.Where(e => e.SportType == sportType);
+                query = query.Where(e => e.SportType.ToLower() == sportType.ToLower());
             }
+
+            query = query.OrderBy(e => e.Date);
 
             return await query.ToListAsync();
         }
-
     }
 }

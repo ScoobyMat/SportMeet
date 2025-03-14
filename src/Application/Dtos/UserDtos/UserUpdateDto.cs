@@ -8,6 +8,7 @@ namespace Application.Dtos.UserDtos
     public class UserUpdateDto : IMap
     {
         public required int Id { get; set; }
+        public string? UserName { get; set; }
         public string? Email { get; set; }
         public string? City { get; set; }
         public string? Country { get; set; }

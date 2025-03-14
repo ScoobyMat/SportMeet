@@ -8,5 +8,6 @@ namespace Application.Interfaces
         Task<FriendshipDto> RespondToRequestAsync(FriendshipRespondDto dto);
         Task DeleteFriendshipAsync(int friendshipId);
         Task<List<FriendshipDto>> GetFriendsAsync(int userId);
+        Task<List<FriendshipDto>> GetReceivedInvitationsAsync(int userId);
     }
 }

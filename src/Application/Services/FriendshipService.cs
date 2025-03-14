@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.FriendshipDtos;
+using Application.Dtos.NotificationDtos;
 using Application.Interfaces;
 using AutoMapper;
 using Domain.Entities;
@@ -6,19 +7,23 @@ using Domain.Interfaces;
 
 namespace Application.Services
 {
+
     public class FriendshipService : IFriendshipService
     {
         private readonly IFriendshipRepository _friendshipRepo;
         private readonly IUserRepository _userRepo;
         private readonly IMapper _mapper;
+        private readonly INotificationService _notificationService;
 
         public FriendshipService(IFriendshipRepository friendshipRepo,
                                  IUserRepository userRepo,
-                                 IMapper mapper)
+                                 IMapper mapper,
+                                 INotificationService notificationService)
         {
             _friendshipRepo = friendshipRepo;
             _userRepo = userRepo;
             _mapper = mapper;
+            _notificationService = notificationService;
         }
 
         public async Task<FriendshipDto> SendFriendRequestAsync(FriendshipCreateDto dto)
@@ -32,7 +37,6 @@ namespace Application.Services
                 throw new KeyNotFoundException("Addressee not found.");
 
             var existing = await _friendshipRepo.GetRelationAsync(dto.RequestorId, dto.AddresseeId);
-
             if (existing != null)
             {
                 if (existing.Status == FriendshipStatus.Rejected)
@@ -40,6 +44,7 @@ namespace Application.Services
                     existing.Status = FriendshipStatus.Pending;
                     existing.Created = DateTime.UtcNow;
                     await _friendshipRepo.UpdateAsync(existing);
+
 
                     var loadedAgain = await _friendshipRepo.GetByIdAsync(existing.Id);
                     return _mapper.Map<FriendshipDto>(loadedAgain);
@@ -56,11 +61,17 @@ namespace Application.Services
 
             await _friendshipRepo.AddAsync(friendship);
 
-            var loaded = await _friendshipRepo.GetByIdAsync(friendship.Id);
-            var result = _mapper.Map<FriendshipDto>(loaded);
-            return result;
-        }
+            var notificationCreateDto = new NotificationCreateDto
+            {
+                UserId = addressee.Id,
+                Type = "FriendRequest",
+                Message = $"Masz nowe zaproszenie do znajomych od {requestor.FirstName} {requestor.LastName}"
+            };
+            await _notificationService.CreateAsync(notificationCreateDto);
 
+            var loaded = await _friendshipRepo.GetByIdAsync(friendship.Id);
+            return _mapper.Map<FriendshipDto>(loaded);
+        }
 
         public async Task<FriendshipDto> RespondToRequestAsync(FriendshipRespondDto dto)
         {
@@ -71,19 +82,25 @@ namespace Application.Services
             if (friendship.Status != FriendshipStatus.Pending)
                 throw new InvalidOperationException("Friendship is not in pending state.");
 
-            if (dto.Accept)
-            {
-                friendship.Status = FriendshipStatus.Accepted;
-            }
-            else
-            {
-                friendship.Status = FriendshipStatus.Rejected;
-            }
-
+            friendship.Status = dto.Accept ? FriendshipStatus.Accepted : FriendshipStatus.Rejected;
             await _friendshipRepo.UpdateAsync(friendship);
 
-            var loaded = await _friendshipRepo.GetByIdAsync(friendship.Id);
+            if (dto.Accept)
+            {
+                var addressee = await _userRepo.GetByIdAsync(friendship.AddresseeId);
+                if (addressee != null)
+                {
+                    var notificationCreateDto = new NotificationCreateDto
+                    {
+                        UserId = friendship.RequestorId,
+                        Type = "FriendRequestAccepted",
+                        Message = $"Twoje zaproszenie do znajomych zostało zaakceptowane przez {addressee.FirstName} {addressee.LastName}"
+                    };
+                    await _notificationService.CreateAsync(notificationCreateDto);
+                }
+            }
 
+            var loaded = await _friendshipRepo.GetByIdAsync(friendship.Id);
             return _mapper.Map<FriendshipDto>(loaded);
         }
 
@@ -99,10 +116,13 @@ namespace Application.Services
         public async Task<List<FriendshipDto>> GetFriendsAsync(int userId)
         {
             var list = await _friendshipRepo.GetAcceptedFriendshipsForUserAsync(userId);
+            return list.Select(f => _mapper.Map<FriendshipDto>(f)).ToList();
+        }
 
-            return list
-                .Select(f => _mapper.Map<FriendshipDto>(f))
-                .ToList();
+        public async Task<List<FriendshipDto>> GetReceivedInvitationsAsync(int userId)
+        {
+            var invitations = await _friendshipRepo.GetReceivedInvitationsAsync(userId);
+            return _mapper.Map<List<FriendshipDto>>(invitations);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿
-namespace API.SignalR
+﻿namespace API.SignalR
 {
     public class PresenceTracker
     {
@@ -46,6 +45,16 @@ namespace API.SignalR
                 onlineUsers = OnlineUsers.OrderBy(k => k.Key).Select(k => k.Key).ToArray();
             }
             return Task.FromResult(onlineUsers);
+        }
+
+        public Task<bool> IsUserOnline(string username)
+        {
+            bool isOnline;
+            lock (OnlineUsers)
+            {
+                isOnline = OnlineUsers.ContainsKey(username) && OnlineUsers[username].Count > 0;
+            }
+            return Task.FromResult(isOnline);
         }
     }
 }

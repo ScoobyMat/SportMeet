@@ -12,7 +12,9 @@ namespace API.Controllers
         {
             _friendshipService = friendshipService;
         }
-
+        /// <summary>
+        /// Wysłanie zaproszenia do znajomych
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<FriendshipDto>> SendFriendRequest(FriendshipCreateDto dto)
         {
@@ -20,7 +22,6 @@ namespace API.Controllers
             {
                 var result = await _friendshipService.SendFriendRequestAsync(dto);
                 return Created(nameof(SendFriendRequest), result);
-
             }
             catch (KeyNotFoundException ex)
             {
@@ -32,6 +33,9 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Odpowiedz na zaproszenie do znajomych
+        /// </summary>
         [HttpPost("respond")]
         public async Task<ActionResult<FriendshipDto>> Respond(FriendshipRespondDto dto)
         {
@@ -50,6 +54,9 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Usunięcie zaproszenia
+        /// </summary>
         [HttpDelete("{friendshipId}")]
         public async Task<ActionResult> Delete(int friendshipId)
         {
@@ -64,11 +71,31 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Pobranie znajomych danego użytkownika
+        /// </summary>
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<List<FriendshipDto>>> GetFriends(int userId)
         {
             var list = await _friendshipService.GetFriendsAsync(userId);
             return Ok(list);
+        }
+
+        /// <summary>
+        /// Pobranie oczekujacych zaproszeń danego użytkownika
+        /// </summary>
+        [HttpGet("received/{userId}")]
+        public async Task<ActionResult<List<FriendshipDto>>> GetReceivedInvitations(int userId)
+        {
+            try
+            {
+                var invitations = await _friendshipService.GetReceivedInvitationsAsync(userId);
+                return Ok(invitations);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using API.Extension;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using System.Diagnostics;
 
 namespace API.SignalR
 {
@@ -34,15 +33,12 @@ namespace API.SignalR
             await Clients.All.SendAsync("GetOnlineUsers", currentUsers);
         }
 
-
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             try
             {
                 if (Context.User == null)
-                {
                     throw new HubException("Cannot get current user claim");
-                }
 
                 await _tracker.UserDisconnected(Context.User.GetUsername(), Context.ConnectionId);
                 await Clients.Others.SendAsync("UserIsOffline", Context.User?.GetUsername());

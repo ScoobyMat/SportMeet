@@ -12,6 +12,8 @@ namespace Application.Dtos.Authentication
         [Required]
         public string LastName { get; set; } = string.Empty;
         [Required]
+        public string UserName { get; set; } = string.Empty;
+        [Required]
         public string? Gender { get; set; }
         [Required]
         public string? DateOfBirth { get; set; }

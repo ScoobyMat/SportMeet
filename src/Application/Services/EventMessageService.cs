@@ -8,50 +8,44 @@ namespace Application.Services
 {
     public class EventMessageService : IEventMessageService
     {
-        private readonly IEventMessageRepository _repo;
+        private readonly IEventMessageRepository _eventMessageRepository;
         private readonly IMapper _mapper;
 
-        public EventMessageService(IEventMessageRepository repo, IMapper mapper)
+        public EventMessageService(IEventMessageRepository eventMessageRepository, IMapper mapper)
         {
-            _repo = repo;
+            _eventMessageRepository = eventMessageRepository;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<EventMessageDto>> GetMessagesForEventAsync(int eventId)
         {
-            var messages = await _repo.GetAllByEventIdAsync(eventId);
+            var messages = await _eventMessageRepository.GetAllByEventIdAsync(eventId);
             return _mapper.Map<IEnumerable<EventMessageDto>>(messages);
         }
 
-        public async Task<EventMessageDto> GetMessageByIdAsync(int id)
+        public async Task<EventMessageDto> SendMessageAsync(EventMessageCreateDto dto)
         {
-            var msg = await _repo.GetByIdAsync(id);
-            if (msg == null) throw new KeyNotFoundException("Message not found");
+            if (string.IsNullOrWhiteSpace(dto.Content))
+                throw new ArgumentException("Message content cannot be empty.");
 
-            return _mapper.Map<EventMessageDto>(msg);
+            var message = _mapper.Map<EventMessage>(dto);
+            message.Created = DateTime.UtcNow;
+            await _eventMessageRepository.AddAsync(message);
+
+            var savedMessage = await _eventMessageRepository.GetByIdAsync(message.Id);
+
+            return _mapper.Map<EventMessageDto>(savedMessage);
         }
 
-        public async Task<EventMessageDto> CreateMessageAsync(EventMessageCreateDto dto)
+        public async Task DeleteMessageAsync(int messageId)
         {
-            var msg = new EventMessage
+            var msg = await _eventMessageRepository.GetByIdAsync(messageId);
+            if (msg == null)
             {
-                EventId = dto.EventId,
-                SenderId = dto.SenderId,
-                Content = dto.Content,
-                Created = DateTime.UtcNow
-            };
+                throw new KeyNotFoundException("Message not found");
+            }
 
-            await _repo.AddAsync(msg);
-
-            return _mapper.Map<EventMessageDto>(msg);
-        }
-
-        public async Task DeleteMessageAsync(int id)
-        {
-            var msg = await _repo.GetByIdAsync(id);
-            if (msg == null) throw new KeyNotFoundException("Message not found");
-
-            await _repo.DeleteAsync(msg);
+            await _eventMessageRepository.DeleteAsync(msg);
         }
     }
 }

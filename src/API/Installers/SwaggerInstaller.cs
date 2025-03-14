@@ -1,5 +1,5 @@
-﻿
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 namespace API.Installers
 {
@@ -13,7 +13,7 @@ namespace API.Installers
                 {
                     Title = "SportMeet API",
                     Version = "v1",
-                    Description = "SportMeet API"
+                    Description = "API dla aplikacji SportMeet"
                 });
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -40,6 +40,10 @@ namespace API.Installers
                         Array.Empty<string>()
                     }
                 });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                options.IncludeXmlComments(xmlPath);
             });
         }
     }

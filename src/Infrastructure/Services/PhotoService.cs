@@ -1,11 +1,11 @@
 ﻿using Application.Interfaces;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using Domain.Models;
+using Infrastructure.Configurations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Application.Services
+namespace Infrastructure.Services
 {
     public class PhotoService : IPhotoService
     {

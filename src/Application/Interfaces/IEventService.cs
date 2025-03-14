@@ -10,11 +10,12 @@ namespace Application.Interfaces
         Task<IEnumerable<EventDto>> GetAllAsync();
         Task DeleteAsync(int id);
 
-        Task JoinEventAsync(int eventId, int userId);
-        // ewentualnie: Task LeaveEventAsync(int eventId, int userId);
-
-        Task<List<EventDto>> GetUpcomingEventsForUserAsync(int userId);
         Task<List<EventDto>> GetManagedEventsAsync(int userId);
+        Task<List<EventDto>> GetUpcomingEventsAsync();
+        Task<List<EventDto>> GetPastEventsAsync();
+        Task<List<EventDto>> GetUpcomingEventsForUserAsync(int userId);
+        Task<List<EventDto>> GetPastEventsForUserAsync(int userId);
+
         Task<List<EventDto>> SearchEventsAsync(EventSearchDto searchDto);
     }
 }

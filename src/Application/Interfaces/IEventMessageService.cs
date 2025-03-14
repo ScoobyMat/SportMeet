@@ -5,8 +5,7 @@ namespace Application.Interfaces
     public interface IEventMessageService
     {
         Task<IEnumerable<EventMessageDto>> GetMessagesForEventAsync(int eventId);
-        Task<EventMessageDto> GetMessageByIdAsync(int id);
-        Task<EventMessageDto> CreateMessageAsync(EventMessageCreateDto dto);
-        Task DeleteMessageAsync(int id);
+        Task<EventMessageDto> SendMessageAsync(EventMessageCreateDto dto);
+        Task DeleteMessageAsync(int messageId);
     }
 }

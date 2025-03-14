@@ -1,4 +1,4 @@
-﻿namespace Domain.Models
+﻿namespace Infrastructure.Configurations
 {
     public class CloudinarySettings
     {

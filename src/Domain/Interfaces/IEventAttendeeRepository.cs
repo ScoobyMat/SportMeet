@@ -6,8 +6,8 @@ namespace Domain.Interfaces
     {
         Task<EventAttendee?> GetByIdAsync(int id);
         Task<IEnumerable<EventAttendee>> GetByEventIdAsync(int eventId);
+        Task<EventAttendee?> GetByEventAndUserAsync(int eventId, int userId);
         Task AddAsync(EventAttendee attendee);
-        Task UpdateAsync(EventAttendee attendee);
         Task DeleteAsync(EventAttendee attendee);
     }
 }

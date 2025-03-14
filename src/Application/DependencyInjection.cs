@@ -13,8 +13,6 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped<IPhotoService, PhotoService>();
-        services.AddScoped<IGeoCodingService, GeoCodingService>();
         services.AddScoped<IEventService, EventService>();
         services.AddScoped<IEventAttendeeService, EventAttendeeService>();
         services.AddScoped<IFriendshipService, FriendshipService>();

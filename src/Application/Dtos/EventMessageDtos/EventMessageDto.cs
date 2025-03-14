@@ -1,11 +1,6 @@
 ﻿using Application.Mappings;
 using AutoMapper;
 using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Dtos.EventMessageDtos
 {
@@ -15,11 +10,16 @@ namespace Application.Dtos.EventMessageDtos
         public int EventId { get; set; }
         public int SenderId { get; set; }
         public string Content { get; set; } = null!;
-        public DateTime CreatedAt { get; set; }
+        public DateTime Created { get; set; }
+
+        public string SenderName { get; set; } = null!;
+        public string SenderPhotoUrl { get; set; } = null!;
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<EventMessage, EventMessageDto>();
+            profile.CreateMap<EventMessage, EventMessageDto>()
+                .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => $"{src.Sender.FirstName} {src.Sender.LastName}"))
+                .ForMember(dest => dest.SenderPhotoUrl, opt => opt.MapFrom(src => src.Sender.PhotoUrl));
         }
     }
 }

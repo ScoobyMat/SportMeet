@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+
     public class EventMessagesController : BaseApiController
     {
         private readonly IEventMessageService _service;
@@ -13,6 +14,9 @@ namespace API.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Pobieranie wszystkich wiadomości dla danego eventu
+        /// </summary>
         [HttpGet("{eventId}")]
         public async Task<ActionResult<IEnumerable<EventMessageDto>>> GetMessagesForEvent(int eventId)
         {
@@ -20,27 +24,19 @@ namespace API.Controllers
             return Ok(messages);
         }
 
-        [HttpGet("detail/{id}")]
-        public async Task<ActionResult<EventMessageDto>> GetMessage(int id)
-        {
-            try
-            {
-                var msg = await _service.GetMessageByIdAsync(id);
-                return Ok(msg);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-        }
-
+        /// <summary>
+        /// Utworzenie wiadomości 
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<EventMessageDto>> CreateMessage(EventMessageCreateDto dto)
         {
-            var result = await _service.CreateMessageAsync(dto);
+            var result = await _service.SendMessageAsync(dto);
             return Ok(result);
         }
 
+        /// <summary>
+        /// Usunięcie danej wiadomości 
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteMessage(int id)
         {

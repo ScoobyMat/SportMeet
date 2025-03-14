@@ -2,7 +2,6 @@
 using Application.Dtos.UserDtos;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System;
 
 namespace API.Controllers
 {
@@ -15,6 +14,9 @@ namespace API.Controllers
             _accountService = accountService;
         }
 
+        /// <summary>
+        /// Rejestracja nowego użytkownika
+        /// </summary>
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
@@ -31,12 +33,11 @@ namespace API.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Wystąpił błąd serwera. Spróbuj ponownie później." });
-            }
         }
 
+        /// <summary>
+        /// Logowanie użytkownika
+        /// </summary>
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto loginDto)
         {

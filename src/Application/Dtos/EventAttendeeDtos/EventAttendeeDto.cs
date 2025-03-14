@@ -10,7 +10,7 @@ namespace Application.Dtos.EventAttendeeDtos
         public int EventId { get; set; }
         public int UserId { get; set; }
         public string Role { get; set; } = null!;
-        public DateTime Created { get; set; }
+        public DateTime JoinedAt { get; set; }
 
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

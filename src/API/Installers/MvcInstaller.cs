@@ -8,7 +8,7 @@ public class MvcInstaller : IInstaller
     public void InstallServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddApplication();
-        services.AddInfrastructure();
+        services.AddInfrastructure(configuration);
         services.AddControllers();
     }
 }

@@ -8,7 +8,6 @@ namespace Infrastructure.Repositories
     public class FriendshipRepository : IFriendshipRepository
     {
         private readonly DataContext _context;
-
         public FriendshipRepository(DataContext context)
         {
             _context = context;
@@ -19,27 +18,12 @@ namespace Infrastructure.Repositories
             return await _context.Friendships
                 .Include(f => f.Requestor)
                 .Include(f => f.Addressee)
-                .FirstOrDefaultAsync(f => f.Id == friendshipId);
+                .SingleOrDefaultAsync(f => f.Id == friendshipId);
         }
 
-        public async Task<Friendship?> GetRelationAsync(int userAId, int userBId)
+        public async Task<IEnumerable<Friendship>> GetAllAsync()
         {
-            return await _context.Friendships
-                .Where(f =>
-                    (f.RequestorId == userAId && f.AddresseeId == userBId) ||
-                    (f.RequestorId == userBId && f.AddresseeId == userAId)
-                )
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<List<Friendship>> GetAcceptedFriendshipsForUserAsync(int userId)
-        {
-            return await _context.Friendships
-                .Where(f => f.Status == FriendshipStatus.Accepted
-                      && (f.RequestorId == userId || f.AddresseeId == userId))
-                .Include(f => f.Requestor)
-                .Include(f => f.Addressee)
-                .ToListAsync();
+            return await _context.Friendships.ToListAsync();
         }
 
         public async Task AddAsync(Friendship friendship)
@@ -58,6 +42,34 @@ namespace Infrastructure.Repositories
         {
             _context.Friendships.Remove(friendship);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Friendship>> GetAcceptedFriendshipsForUserAsync(int userId)
+        {
+            return await _context.Friendships
+                .Where(f => f.Status == FriendshipStatus.Accepted &&
+                           (f.RequestorId == userId || f.AddresseeId == userId))
+                .Include(f => f.Requestor)
+                .Include(f => f.Addressee)
+                .ToListAsync();
+        }
+
+        public async Task<List<Friendship>> GetReceivedInvitationsAsync(int userId)
+        {
+            return await _context.Friendships
+                .Where(f => f.AddresseeId == userId && f.Status == FriendshipStatus.Pending)
+                .Include(f => f.Requestor)
+                .ToListAsync();
+        }
+
+        public async Task<Friendship?> GetRelationAsync(int userAId, int userBId)
+        {
+            return await _context.Friendships
+                .Where(f =>
+                    (f.RequestorId == userAId && f.AddresseeId == userBId) ||
+                    (f.RequestorId == userBId && f.AddresseeId == userAId)
+                )
+                .FirstOrDefaultAsync();
         }
     }
 }

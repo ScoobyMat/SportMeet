@@ -13,6 +13,9 @@ namespace API.Controllers
             _eventService = eventService;
         }
 
+        /// <summary>
+        /// Pobranie wszystkich wydarzeń
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventDto>>> GetAll()
         {
@@ -20,6 +23,9 @@ namespace API.Controllers
             return Ok(events);
         }
 
+        /// <summary>
+        /// Pobieranie konkretnego wydarzenia
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<EventDto>> GetById(int id)
         {
@@ -34,6 +40,9 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Utworzenie wydarzenia
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<EventDto>> Create(EventCreateDto dto)
         {
@@ -48,11 +57,15 @@ namespace API.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<ActionResult<EventDto>> Update(EventUpdateDto dto)
+        /// <summary>
+        /// Aktualizacja danych wydarzenia
+        /// </summary>
+        [HttpPut("{id}")]
+        public async Task<ActionResult<EventDto>> Update(int id, EventUpdateDto dto)
         {
             try
             {
+                dto.Id = id;
                 var updated = await _eventService.UpdateAsync(dto);
                 return Ok(updated);
             }
@@ -62,6 +75,9 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Usunięcie danego wydarzenia
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
@@ -75,21 +91,29 @@ namespace API.Controllers
                 return NotFound(ex.Message);
             }
         }
-
-        [HttpPost("{eventId}/join/{userId}")]
-        public async Task<ActionResult> JoinEvent(int eventId, int userId)
+        /// <summary>
+        /// Pobranie nadchodzących wydarzeń
+        /// </summary>
+        [HttpGet("upcoming")]
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetUpcomingEvents()
         {
-            try
-            {
-                await _eventService.JoinEventAsync(eventId, userId);
-                return Ok();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var events = await _eventService.GetUpcomingEventsAsync();
+            return Ok(events);
         }
 
+        /// <summary>
+        /// Pobranie minionych wydarzeń
+        /// </summary>
+        [HttpGet("past")]
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetPastEvents()
+        {
+            var events = await _eventService.GetPastEventsAsync();
+            return Ok(events);
+        }
+
+        /// <summary>
+        /// Pobranie nadchodzących wydarzeń danego użytkownika
+        /// </summary>
         [HttpGet("user/{userId}/upcoming")]
         public async Task<ActionResult<IEnumerable<EventDto>>> GetUpcomingEventsForUser(int userId)
         {
@@ -97,6 +121,19 @@ namespace API.Controllers
             return Ok(events);
         }
 
+        /// <summary>
+        /// Pobranie mininych wydarzeń danego użytkownika
+        /// </summary>
+        [HttpGet("user/{userId}/past")]
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetPastEventsForUser(int userId)
+        {
+            var events = await _eventService.GetPastEventsForUserAsync(userId);
+            return Ok(events);
+        }
+
+        /// <summary>
+        /// Pobranie organizowanych wydarzeń przez danego użytkownika
+        /// </summary>
         [HttpGet("user/{userId}/managed")]
         public async Task<ActionResult<IEnumerable<EventDto>>> GetManagedEvents(int userId)
         {
@@ -104,6 +141,9 @@ namespace API.Controllers
             return Ok(events);
         }
 
+        /// <summary>
+        /// Pobranie wydzarzeń spełniających kryteria wyszukiwania
+        /// </summary>
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<EventDto>>> SearchEvents([FromQuery] EventSearchDto searchDto)
         {

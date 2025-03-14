@@ -32,6 +32,12 @@ namespace Infrastructure.Repositories
                 .SingleOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User?> GetByUsernameAsync(string username)
+        {
+            return await _context.Users
+                .SingleOrDefaultAsync(u => u.UserName.ToLower() == username.ToLower());
+        }
+
         public async Task<User?> GetByIdAsync(int userId)
         {
             return await _context.Users

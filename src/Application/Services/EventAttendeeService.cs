@@ -9,62 +9,67 @@ namespace Application.Services
     public class EventAttendeeService : IEventAttendeeService
     {
         private readonly IEventAttendeeRepository _attendeeRepository;
+        private readonly IEventRepository _eventRepository;
         private readonly IMapper _mapper;
 
-        public EventAttendeeService(IEventAttendeeRepository attendeeRepository, IMapper mapper)
+        public EventAttendeeService(IEventAttendeeRepository attendeeRepository,IEventRepository eventRepository, IMapper mapper)
         {
             _attendeeRepository = attendeeRepository;
+            _eventRepository = eventRepository;
             _mapper = mapper;
         }
 
-        public async Task<EventAttendeeDto?> GetByIdAsync(int id)
-        {
-            var attendee = await _attendeeRepository.GetByIdAsync(id);
-            if (attendee == null) return null;
 
+        public async Task<EventAttendeeDto> AddAttendeeAsync(int eventId, int userId)
+        {
+            var existing = await _attendeeRepository.GetByEventAndUserAsync(eventId, userId);
+            if (existing != null)
+            {
+                throw new InvalidOperationException("User is already registered for the event.");
+            }
+
+            var dto = new EventAttendeeCreateDto
+            {
+                EventId = eventId,
+                UserId = userId
+            };
+
+            var attendee = _mapper.Map<EventAttendee>(dto);
+            attendee.JoinedAt = DateTime.UtcNow;
+
+            var ev = await _eventRepository.GetByIdAsync(eventId);
+            if (ev == null)
+            {
+                throw new KeyNotFoundException("Event not found.");
+            }
+            attendee.Role = ev.CreatedByUserId == userId ? "Owner" : "Participant";
+
+            await _attendeeRepository.AddAsync(attendee);
             return _mapper.Map<EventAttendeeDto>(attendee);
+        }
+
+
+
+
+        public async Task DeleteAttendeeAsync(int attendeeId)
+        {
+            var attendee = await _attendeeRepository.GetByIdAsync(attendeeId);
+            if (attendee == null)
+                throw new KeyNotFoundException("Attendee not found.");
+
+            await _attendeeRepository.DeleteAsync(attendee);
+        }
+
+        public async Task<EventAttendeeDto?> GetByEventAndUserAsync(int eventId, int userId)
+        {
+            var attendee = await _attendeeRepository.GetByEventAndUserAsync(eventId, userId);
+            return attendee == null ? null : _mapper.Map<EventAttendeeDto>(attendee);
         }
 
         public async Task<IEnumerable<EventAttendeeDto>> GetByEventIdAsync(int eventId)
         {
             var attendees = await _attendeeRepository.GetByEventIdAsync(eventId);
             return _mapper.Map<IEnumerable<EventAttendeeDto>>(attendees);
-        }
-
-        public async Task<EventAttendeeDto> AddAttendeeAsync(EventAttendeeCreateDto dto)
-        {
-            var entity = new EventAttendee
-            {
-                EventId = dto.EventId,
-                UserId = dto.UserId,
-                Role = dto.Role,
-                Created = DateTime.UtcNow
-            };
-
-            await _attendeeRepository.AddAsync(entity);
-
-            return _mapper.Map<EventAttendeeDto>(entity);
-        }
-
-        public async Task UpdateAttendeeAsync(EventAttendeeUpdateDto dto)
-        {
-            var attendee = await _attendeeRepository.GetByIdAsync(dto.Id);
-            if (attendee == null) throw new KeyNotFoundException("Attendee not found");
-
-            if (dto.Role != null)
-            {
-                attendee.Role = dto.Role;
-                attendee.LastModified = DateTime.UtcNow;
-                await _attendeeRepository.UpdateAsync(attendee);
-            }
-        }
-
-        public async Task DeleteAttendeeAsync(int id)
-        {
-            var attendee = await _attendeeRepository.GetByIdAsync(id);
-            if (attendee == null) throw new KeyNotFoundException("Attendee not found");
-
-            await _attendeeRepository.DeleteAsync(attendee);
         }
     }
 }

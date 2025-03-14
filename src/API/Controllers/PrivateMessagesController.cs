@@ -13,6 +13,9 @@ namespace API.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Pobranie historii czatu prywatnego
+        /// </summary>
         [HttpGet("conversation")]
         public async Task<ActionResult<IEnumerable<PrivateMessageDto>>> GetConversation(
             [FromQuery] int userAId, [FromQuery] int userBId)
@@ -21,6 +24,9 @@ namespace API.Controllers
             return Ok(messages);
         }
 
+        /// <summary>
+        /// Wysłanie wiadomości
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<PrivateMessageDto>> SendMessage(PrivateMessageCreateDto dto)
         {
@@ -28,7 +34,9 @@ namespace API.Controllers
             return Ok(result);
         }
 
-
+        /// <summary>
+        /// Usunięcie wiadomości
+        /// </summary>
         [HttpDelete("{messageId}")]
         public async Task<ActionResult> DeleteMessage(int messageId)
         {

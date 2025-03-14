@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     public class NotificationsController : BaseApiController
-
     {
         private readonly INotificationService _service;
 
@@ -14,6 +13,9 @@ namespace API.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Pobranie wszystkich powiadomień użytkownika
+        /// </summary>
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<IEnumerable<NotificationDto>>> GetAllForUser(int userId)
         {
@@ -21,27 +23,30 @@ namespace API.Controllers
             return Ok(notifs);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<NotificationDto>> GetById(int id)
+        /// <summary>
+        /// Pobranie tylko nieprzeczytanych powiadomienie danego użytkownika
+        /// </summary>
+        [HttpGet("user/{userId}/unread")]
+        public async Task<ActionResult<IEnumerable<NotificationDto>>> GetUnreadForUser(int userId)
         {
-            try
-            {
-                var notif = await _service.GetByIdAsync(id);
-                return Ok(notif);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            var notifs = await _service.GetUnreadByUserAsync(userId);
+            return Ok(notifs);
         }
 
+
+       /* /// <summary>
+        /// Tworzenie powiadomienia
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<NotificationDto>> Create(NotificationCreateDto dto)
         {
             var result = await _service.CreateAsync(dto);
             return Ok(result);
-        }
+        }*/
 
+        /// <summary>
+        /// Oznaczenie pojedyńczego powiadomienia jako przeczytane
+        /// </summary>
         [HttpPatch("{id}/read")]
         public async Task<ActionResult> MarkAsRead(int id)
         {
@@ -56,6 +61,26 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Oznaczenie wszystkich powiadomień użytkownika jako przeczytane
+        /// </summary>
+        [HttpPatch("user/{userId}/readall")]
+        public async Task<ActionResult> MarkAllAsRead(int userId)
+        {
+            try
+            {
+                await _service.MarkAllAsReadAsync(userId);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        /*/// <summary>
+        /// Usunienie danego powiadomienia
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteNotification(int id)
         {
@@ -68,6 +93,6 @@ namespace API.Controllers
             {
                 return NotFound(ex.Message);
             }
-        }
+        }*/
     }
 }

@@ -1,11 +1,7 @@
 ﻿using Application.Mappings;
 using AutoMapper;
 using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Application.Dtos.EventDtos
 {
@@ -19,13 +15,9 @@ namespace Application.Dtos.EventDtos
         public int? MaxParticipants { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }
-        public double? Latitude { get; set; }
-        public double? Longitude { get; set; }
         public DateOnly? Date { get; set; }
         public TimeSpan? Time { get; set; }
-
-        public string? PhotoUrl { get; set; }
-        public string? PhotoPublicId { get; set; }
+        public IFormFile? Photo { get; set; }
 
         public void Mapping(Profile profile)
         {

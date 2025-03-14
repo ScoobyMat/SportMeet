@@ -2,11 +2,6 @@
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -21,27 +16,26 @@ namespace Infrastructure.Repositories
 
         public async Task<EventAttendee?> GetByIdAsync(int id)
         {
-            return await _context.EventAttendees
-                .FirstOrDefaultAsync(a => a.Id == id);
+            return await _context.EventAttendees.FindAsync(id);
         }
 
         public async Task<IEnumerable<EventAttendee>> GetByEventIdAsync(int eventId)
         {
             return await _context.EventAttendees
-                .Include(a => a.User) 
                 .Where(a => a.EventId == eventId)
+                .Include(a => a.User)
                 .ToListAsync();
+        }
+
+        public async Task<EventAttendee?> GetByEventAndUserAsync(int eventId, int userId)
+        {
+            return await _context.EventAttendees
+                .FirstOrDefaultAsync(a => a.EventId == eventId && a.UserId == userId);
         }
 
         public async Task AddAsync(EventAttendee attendee)
         {
             await _context.EventAttendees.AddAsync(attendee);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateAsync(EventAttendee attendee)
-        {
-            _context.EventAttendees.Update(attendee);
             await _context.SaveChangesAsync();
         }
 

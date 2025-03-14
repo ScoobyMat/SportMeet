@@ -31,18 +31,13 @@ namespace Application.Services
             await _userRepository.DeleteAsync(user);
         }
 
-        public async Task<UserDto?> GetUserByEmailAsync(string email)
+        public async Task<UserDto?> GetUserByUsernameAsync(string username)
         {
-            var user = await _userRepository.GetByEmailAsync(email);
-
-            if (user == null)
-            {
-                throw new KeyNotFoundException($"User not found.");
-            }
-
-            var userDto = _mapper.Map<UserDto>(user);
-            return userDto;
+            var user = await _userRepository.GetByUsernameAsync(username);
+            if (user == null) throw new KeyNotFoundException("User not found.");
+            return _mapper.Map<UserDto>(user);
         }
+
 
         public async Task<UserDto?> GetUserByIdAsync(int id)
         {

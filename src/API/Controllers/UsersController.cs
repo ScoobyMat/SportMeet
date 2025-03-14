@@ -15,6 +15,9 @@ namespace API.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Pobranie wszystkich u¿ytkowników aplikacji
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
@@ -29,6 +32,9 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Pobranie konkretnego u¿ytkownika na podstawie jego ID
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> GetUser(int id)
         {
@@ -43,13 +49,16 @@ namespace API.Controllers
             }
         }
 
-        [HttpGet("userEmail/{email}")]
-        public async Task<ActionResult<UserDto>> GetUser(string email)
+        /// <summary>
+        /// Pobranie konkretnego u¿ytkownika na podstawie jego username
+        /// </summary>
+        [HttpGet("username/{username}")]
+        public async Task<ActionResult<UserDto>> GetUserByUsername(string username)
         {
             try
             {
-                var user = await _userService.GetUserByEmailAsync(email);
-                return Ok(user);
+                var userDto = await _userService.GetUserByUsernameAsync(username);
+                return Ok(userDto);
             }
             catch (KeyNotFoundException ex)
             {
@@ -57,6 +66,9 @@ namespace API.Controllers
             }
         }
 
+        /// <summary>
+        /// Aktualizacja danych u¿ytkownika
+        /// </summary>
         [HttpPut]
         public async Task<ActionResult<UserDto>> UpdateUser(UserUpdateDto userUpdateDto)
         {
@@ -72,7 +84,9 @@ namespace API.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Usuniêcie danego u¿ytkownika
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteUser(int id)
         {

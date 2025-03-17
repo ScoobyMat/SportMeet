@@ -60,20 +60,25 @@ namespace API.Controllers
         /// <summary>
         /// Aktualizacja danych wydarzenia
         /// </summary>
-        [HttpPut("{id}")]
-        public async Task<ActionResult<EventDto>> Update(int id, EventUpdateDto dto)
+        [HttpPut]
+        public async Task<ActionResult<EventDto>> Update([FromForm] EventUpdateDto dto)
         {
             try
             {
-                dto.Id = id;
                 var updated = await _eventService.UpdateAsync(dto);
                 return Ok(updated);
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
+
+
 
         /// <summary>
         /// Usunięcie danego wydarzenia

@@ -54,6 +54,14 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Friendship>> GetSentInvitationsAsync(int userId)
+        {
+            return await _context.Friendships
+                .Where(f => f.RequestorId == userId && f.Status == FriendshipStatus.Pending)
+                .Include(f => f.Addressee)
+                .ToListAsync();
+        }
+
         public async Task<List<Friendship>> GetReceivedInvitationsAsync(int userId)
         {
             return await _context.Friendships
@@ -61,6 +69,7 @@ namespace Infrastructure.Repositories
                 .Include(f => f.Requestor)
                 .ToListAsync();
         }
+
 
         public async Task<Friendship?> GetRelationAsync(int userAId, int userBId)
         {

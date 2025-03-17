@@ -151,7 +151,7 @@ const center = ref({
 
 const fetchEvents = async () => {
   try {
-    const fetchedEvents = await EventService.getAllEvents();
+    const fetchedEvents = await EventService.getUpcomingEvents();
     const userId = parseInt(authStore.getUserId);
     await Promise.all(
       fetchedEvents.map(async (ev) => {

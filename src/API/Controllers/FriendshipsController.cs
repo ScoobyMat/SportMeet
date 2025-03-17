@@ -82,7 +82,24 @@ namespace API.Controllers
         }
 
         /// <summary>
-        /// Pobranie oczekujacych zaproszeń danego użytkownika
+        /// Pobranie wysłanych zaproszeń do znajomych przez danego użytkownika
+        /// </summary>
+        [HttpGet("sent/{userId}")]
+        public async Task<ActionResult<List<FriendshipDto>>> GetSentInvitations([FromRoute] int userId)
+        {
+            try
+            {
+                var invitations = await _friendshipService.GetSentInvitationsAsync(userId);
+                return Ok(invitations);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Pobranie oczekujacych zaproszeń do znajomych dla danego użytkownika
         /// </summary>
         [HttpGet("received/{userId}")]
         public async Task<ActionResult<List<FriendshipDto>>> GetReceivedInvitations(int userId)

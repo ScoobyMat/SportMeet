@@ -77,7 +77,6 @@ namespace Application.Services
                 {
                     await _photoService.DeletePhotoAsync(ev.PhotoPublicId);
                 }
-
                 var uploadResult = await _photoService.AddPhotoAsync(dto.Photo, "event");
                 if (uploadResult.Error != null)
                     throw new Exception(uploadResult.Error.Message);
@@ -88,8 +87,8 @@ namespace Application.Services
 
             if (!string.IsNullOrWhiteSpace(dto.Address) || !string.IsNullOrWhiteSpace(dto.City))
             {
-                ev.Address = dto.Address;
-                ev.City = dto.City;
+                ev.Address = !string.IsNullOrWhiteSpace(dto.Address) ? dto.Address : ev.Address;
+                ev.City = !string.IsNullOrWhiteSpace(dto.City) ? dto.City : ev.City;
 
                 var geoCodedEvent = await _geoCodingService.GetCoordinatesAsync(ev);
                 if (geoCodedEvent != null)
@@ -109,6 +108,9 @@ namespace Application.Services
             await _eventRepository.UpdateAsync(ev);
             return _mapper.Map<EventDto>(ev);
         }
+
+
+
 
         public async Task<EventDto?> GetByIdAsync(int id)
         {

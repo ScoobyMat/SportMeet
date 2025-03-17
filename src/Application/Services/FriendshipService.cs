@@ -119,6 +119,12 @@ namespace Application.Services
             return list.Select(f => _mapper.Map<FriendshipDto>(f)).ToList();
         }
 
+        public async Task<List<FriendshipDto>> GetSentInvitationsAsync(int userId)
+        {
+            var sentInvitations = await _friendshipRepo.GetSentInvitationsAsync(userId);
+            return _mapper.Map<List<FriendshipDto>>(sentInvitations);
+        }
+
         public async Task<List<FriendshipDto>> GetReceivedInvitationsAsync(int userId)
         {
             var invitations = await _friendshipRepo.GetReceivedInvitationsAsync(userId);

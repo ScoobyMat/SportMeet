@@ -23,6 +23,16 @@ const FriendService = {
     }
   },
 
+  async getSentInvitations(userId) {
+    try {
+      const response = await apiClient.get(`${API_URL}/sent/${userId}`, { requiresAuth: true });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching sent invitations:", error);
+      throw error;
+    }
+  },
+
   async acceptInvitation(invitationId) {
     try {
       const response = await apiClient.post(
@@ -53,9 +63,7 @@ const FriendService = {
 
   async getFriends(userId) {
     try {
-      const response = await apiClient.get(`${API_URL}/user/${userId}`, {
-        requiresAuth: true,
-      });
+      const response = await apiClient.get(`${API_URL}/user/${userId}`, { requiresAuth: true });
       return response.data;
     } catch (error) {
       console.error("Error fetching friends:", error);
@@ -65,9 +73,7 @@ const FriendService = {
 
   async deleteFriendship(friendshipId) {
     try {
-      const response = await apiClient.delete(`${API_URL}/${friendshipId}`, {
-        requiresAuth: true,
-      });
+      const response = await apiClient.delete(`${API_URL}/${friendshipId}`, { requiresAuth: true });
       return response.data;
     } catch (error) {
       console.error("Error deleting friendship:", error);

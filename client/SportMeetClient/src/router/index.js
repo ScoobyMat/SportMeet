@@ -15,6 +15,7 @@ import FriendsList from '../pages/FriendsList.vue';
 import MyProfile from '../pages/MyProfile.vue';
 import MyProfileEdit from '../pages/MyProfileEdit.vue';
 import PrivateChat from '../pages/PrivateChat.vue';
+import UserCredentialsEdit from '../pages/UserCredentialsEdit.vue';
 
 const routes = [
   { path: '/login', name: 'Login', component: Login },
@@ -25,6 +26,7 @@ const routes = [
   { path: '/event/group/:eventId', name: 'EventGroup', component: EventGroup, props: true, meta: { requiresAuth: true } },
   { path: '/profile', name: 'MyProfile', component: MyProfile, meta: { requiresAuth: true } },
   { path: '/profile/edit', name: 'UserProfileEdit', component: MyProfileEdit, meta: { requiresAuth: true } },
+  { path: '/profile/credentialsEdit', name: 'UserCredentialsEdit', component: UserCredentialsEdit, meta: { requiresAuth: true } },
   { path: '/event/create', name: 'EventCreate', component: EventCreate, meta: { requiresAuth: true } },
   { path: '/myEvents', name: 'MyEvents', component: EventUserManaged, meta: { requiresAuth: true } },
   { path: '/myEvents/update/:eventId', name: 'EventEdit', component: EventEdit, props: true, meta: { requiresAuth: true } },

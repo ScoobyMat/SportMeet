@@ -25,7 +25,37 @@ const EventService = {
 
   async getUpcomingEvents(userId) {
     try {
+      const response = await apiClient.get(`${API_URL}/upcoming`, { requiresAuth: true });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching upcoming events:", error);
+      throw error;
+    }
+  },
+
+  async getPastEvents() {
+    try {
+      const response = await apiClient.get(`${API_URL}/past`, { requiresAuth: true });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching upcoming events:", error);
+      throw error;
+    }
+  },
+
+  async getUpcomingEventsForUser(userId) {
+    try {
       const response = await apiClient.get(`${API_URL}/user/${userId}/upcoming`, { requiresAuth: true });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching upcoming events:", error);
+      throw error;
+    }
+  },
+
+  async getPastEventsForUser(userId) {
+    try {
+      const response = await apiClient.get(`${API_URL}/user/${userId}/past`, { requiresAuth: true });
       return response.data;
     } catch (error) {
       console.error("Error fetching upcoming events:", error);
@@ -74,7 +104,7 @@ const EventService = {
 
   async updateEvent(eventData) {
     try {
-      const response = await apiClient.put(`${API_URL}/${eventData.id}`, eventData, { requiresAuth: true });
+      const response = await apiClient.put(`${API_URL}`, eventData, { requiresAuth: true });
       return response.data;
     } catch (error) {
       console.error("Error updating event:", error);

@@ -8,7 +8,6 @@ namespace Application.Dtos.EventDtos
     public class EventUpdateDto : IMap
     {
         public required int Id { get; set; }
-
         public string? EventName { get; set; }
         public string? Description { get; set; }
         public string? SportType { get; set; }
@@ -24,5 +23,6 @@ namespace Application.Dtos.EventDtos
             profile.CreateMap<EventUpdateDto, Event>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
+
     }
 }

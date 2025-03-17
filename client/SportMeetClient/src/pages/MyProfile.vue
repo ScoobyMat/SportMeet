@@ -11,26 +11,24 @@
           <strong v-if="user.gender === 'Mężczyzna'">Pan:</strong>
           <strong v-else-if="user.gender === 'Kobieta'">Pani:</strong>
           <p>{{ user.firstName || 'Nieznane' }} {{ user.lastName || 'Nieznane' }}</p>
-
           <p>({{ user.userName }})</p>
-
           <strong>Wiek:</strong>
           <p>{{ user.age || 'Brak informacji' }}</p>
-
           <strong>Email:</strong>
           <p>{{ user.email }}</p>
-
           <strong>Płeć:</strong>
           <p>{{ user.gender || 'Brak informacji' }}</p>
-
           <strong>Mieszka w:</strong>
           <p>
             {{ user.city || 'Brak informacji' }},
             {{ user.country || 'Brak informacji' }}
           </p>
         </div>
-        <button class="btn btn-primary btn-lg mb-5" @click="goToEditProfile">
+        <button class="btn btn-primary btn-lg mb-3" @click="goToEditProfile">
           Edytuj profil
+        </button>
+        <button class="btn btn-secondary btn-lg" @click="goToCredentialsEdit">
+          Zmień dane logowania
         </button>
       </div>
 
@@ -86,8 +84,11 @@ const user = computed(() => {
 const goToEditProfile = () => {
   router.push({ name: "UserProfileEdit" });
 };
-</script>
 
+const goToCredentialsEdit = () => {
+  router.push({ name: "UserCredentialsEdit" });
+};
+</script>
 
 <style scoped>
 .user-description {

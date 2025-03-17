@@ -109,5 +109,22 @@ namespace Application.Services
             return userDto;
         }
 
+        public async Task<UserDto> ChangeCredentialsAsync(ChangeCredentialsDto dto)
+        {
+            var user = await _userRepository.GetByIdAsync(dto.Id);
+            if (user == null)
+            {
+                throw new KeyNotFoundException("User not found.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                user.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            }
+
+            await _userRepository.UpdateAsync(user);
+
+            return _mapper.Map<UserDto>(user);
+        }
     }
 }

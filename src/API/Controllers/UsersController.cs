@@ -67,7 +67,7 @@ namespace API.Controllers
         }
 
         /// <summary>
-        /// Aktualizacja danych u¿ytkownika
+        /// Aktualizacja podstawowych danych u¿ytkownika
         /// </summary>
         [HttpPut]
         public async Task<ActionResult<UserDto>> UpdateUser(UserUpdateDto userUpdateDto)
@@ -81,6 +81,27 @@ namespace API.Controllers
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Zmiana danych u¿ytkownika – email i/lub has³a
+        /// </summary>
+        [HttpPatch("credentials")]
+        public async Task<ActionResult<UserDto>> ChangeCredentials([FromBody] ChangeCredentialsDto dto)
+        {
+            try
+            {
+                var updatedUser = await _userService.ChangeCredentialsAsync(dto);
+                return Ok(updatedUser);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
 

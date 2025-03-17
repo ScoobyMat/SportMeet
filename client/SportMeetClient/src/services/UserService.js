@@ -59,6 +59,19 @@ const UserService = {
       throw error;
     }
   },
+
+  async changeCredentials(credentialsDto) {
+    try {
+      const response = await apiClient.patch(`${API_URL}/credentials`, credentialsDto, {
+        requiresAuth: true,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("ChangeCredentials error:", error.response || error.message);
+      throw error;
+    }
+  },
+  
 };
 
 export default UserService;

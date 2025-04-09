@@ -15,11 +15,18 @@
         public string? PhotoUrl { get; set; }
         public string? PhotoPublicId { get; set; }
 
+        public EventStatus Status { get; set; }
+
         public int CreatedByUserId { get; set; }
         public User CreatedByUser { get; set; }
-
-
         public ICollection<EventAttendee> Attendees { get; set; }
         public ICollection<EventMessage> EventMessages { get; set; }
+    }
+
+    public enum EventStatus
+    {
+        Coming,
+        Completed,
+        Cancelled
     }
 }

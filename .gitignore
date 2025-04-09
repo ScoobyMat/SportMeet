@@ -483,3 +483,4 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 src/API/appsettings.json
+/SportMeet.UnitTests

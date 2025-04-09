@@ -50,10 +50,6 @@ namespace API.Controllers
             {
                 return Unauthorized(new { message = ex.Message });
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Wystąpił błąd serwera. Spróbuj ponownie później." });
-            }
         }
     }
 }

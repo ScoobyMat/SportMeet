@@ -44,7 +44,6 @@ namespace Infrastructure.Repositories
 
         public async Task DeleteAsync(Event ev)
         {
-            _context.Events.Remove(ev);
             await _context.SaveChangesAsync();
         }
 
@@ -59,59 +58,42 @@ namespace Infrastructure.Repositories
 
         public async Task<List<Event>> GetUpcomingEventsAsync()
         {
-            var now = DateTime.UtcNow;
-            var today = DateOnly.FromDateTime(now);
-            var currentTime = now.TimeOfDay;
-
             return await _context.Events
-                .Where(e => e.Date > today || (e.Date == today && e.Time >= currentTime))
+                .Where(e => e.Status == EventStatus.Coming)
                 .Include(e => e.Attendees)
                 .ToListAsync();
         }
 
         public async Task<List<Event>> GetPastEventsAsync()
         {
-            var now = DateTime.UtcNow;
-            var today = DateOnly.FromDateTime(now);
-            var currentTime = now.TimeOfDay;
-
             return await _context.Events
-                .Where(e => e.Date < today || (e.Date == today && e.Time < currentTime))
+                .Where(e => e.Status == EventStatus.Completed)
                 .Include(e => e.Attendees)
                 .ToListAsync();
         }
 
         public async Task<List<Event>> GetUpcomingEventsForUserAsync(int userId)
         {
-            var now = DateTime.UtcNow;
-            var today = DateOnly.FromDateTime(now);
-            var currentTime = now.TimeOfDay;
-
             return await _context.Events
                 .Where(e =>
                     (e.CreatedByUserId == userId ||
                      (e.Attendees != null && e.Attendees.Any(a => a.UserId == userId)))
-                    && (e.Date > today || (e.Date == today && e.Time >= currentTime))
-                )
+                    && e.Status == EventStatus.Coming)
                 .Include(e => e.Attendees)
                 .ToListAsync();
         }
 
         public async Task<List<Event>> GetPastEventsForUserAsync(int userId)
         {
-            var now = DateTime.UtcNow;
-            var today = DateOnly.FromDateTime(now);
-            var currentTime = now.TimeOfDay;
-
             return await _context.Events
                 .Where(e =>
                     (e.CreatedByUserId == userId ||
                      (e.Attendees != null && e.Attendees.Any(a => a.UserId == userId)))
-                    && (e.Date < today || (e.Date == today && e.Time < currentTime))
-                )
+                    && e.Status == EventStatus.Completed)
                 .Include(e => e.Attendees)
                 .ToListAsync();
         }
+
 
         public async Task<List<Event>> SearchEventsAsync(string? city, DateOnly? from, DateOnly? to, string? sportType)
         {

@@ -12,6 +12,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<PresenceTracker>();
+builder.Services.AddHostedService<EventStatusUpdaterService>();
+
 
 var app = builder.Build();
 

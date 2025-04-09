@@ -95,11 +95,11 @@ const goToEvent = (eventId) => {
   router.push(`/event/group/${eventId}`);
 };
 
-const fetchUpcomingEvents = async () => {
+const fetchUpcomingEventsForUser = async () => {
   try {
     const currentUser = authStore.getUserId;
     if (currentUser) {
-      const fetchedEvents = await EventService.getUpcomingEvents(currentUser);
+      const fetchedEvents = await EventService.getUpcomingEventsForUser(currentUser);
       events.value = fetchedEvents.filter(
         (ev) => ev.sportType && ev.eventName && ev.date
       );
@@ -111,7 +111,7 @@ const fetchUpcomingEvents = async () => {
 
 onMounted(() => {
   if (authStore.isAuthenticated) {
-    fetchUpcomingEvents();
+    fetchUpcomingEventsForUser();
   }
 });
 

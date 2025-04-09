@@ -1,12 +1,12 @@
 import { translateErrorMessage } from "@/errorMessages";
-import apiClient from "../apiClient";
+import axios from "axios";
 
-const API_URL = "/Auth";
+const API_URL = "https://localhost:7147/api/Auth";
 
 const AuthenticationService = {
   async login(model) {
     try {
-      const response = await apiClient.post(`${API_URL}/login`, model, {
+      const response = await axios.post(`${API_URL}/login`, model, {
         Authorization: false,
       });
       return response.data.token;
@@ -18,7 +18,7 @@ const AuthenticationService = {
 
   async register(model) {
     try {
-      const response = await apiClient.post(`${API_URL}/register`, model, {
+      const response = await axios.post(`${API_URL}/register`, model, {
         Authorization: false,
       });
 

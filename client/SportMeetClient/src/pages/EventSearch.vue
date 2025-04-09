@@ -117,14 +117,13 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
-import { useToast } from "vue-toastification";
-
 import HereMap from "@/components/Map/HereMap.vue";
 import { availableSports, sportImages } from "@/constants/sports";
 import EventService from "@/services/EventService";
 import { useAuthStore } from "@/stores/auth";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
 import EventAttendeesService from "../services/EventAttendeesService";
 
 const authStore = useAuthStore();

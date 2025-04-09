@@ -40,6 +40,7 @@ namespace Application.Services
 
             var newEvent = _mapper.Map<Event>(dto);
             newEvent.Created = DateTime.UtcNow;
+            newEvent.Status = EventStatus.Coming;
 
             var geoCodingResult = await _geoCodingService.GetCoordinatesAsync(newEvent);
             if (geoCodingResult == null)
@@ -141,6 +142,7 @@ namespace Application.Services
                 await _eventRepository.UpdateAsync(ev);
             }
 
+            ev.Status = EventStatus.Cancelled;
             await _eventRepository.DeleteAsync(ev);
         }
 

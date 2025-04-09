@@ -19,7 +19,6 @@ export function createHubConnection(hubName, token, eventHandlers = {}) {
   for (const [event, handler] of Object.entries(eventHandlers)) {
     connection.on(event, handler);
   }
-
   return connection;
 }
 
@@ -29,7 +28,6 @@ export async function startConnection(connection) {
     await connection.start();
     console.log(`Połączono z SignalR: ${connection.baseUrl}`);
   } catch (error) {
-    console.error("Błąd połączenia SignalR:", error);
     setTimeout(() => startConnection(connection), 5000);
   }
 }
@@ -38,9 +36,9 @@ export async function stopConnection(connection) {
   if (connection) {
     try {
       await connection.stop();
-      console.log("Połączenie SignalR zakończone");
     } catch (error) {
       console.error("Błąd podczas zamykania połączenia SignalR:", error);
     }
   }
 }
+

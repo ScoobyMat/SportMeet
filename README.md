@@ -35,11 +35,11 @@ Platforma dla społeczności sportowej – umawianie się na wspólne treningi i
 
 | Tworzenie i zarządzanie wydarzeniami | Opis |
 |----------------------------------|------|
-| <img src="docs/screens/EventCreate.png" width="400"/> | System umożliwia uwierzytelnionym użytkownikom tworzenie własnych wydarzeń sportowych w prosty i intuicyjny sposób.<br/><br/>Twórcy wydarzeń mają pełną kontrolę nad utworzonymi przez nich wydarzeniami<br> i mogą nimi zarządzać (edycja, anulowanie). |
+| <img src="docs/screens/EventCreate.jpg" width="400"/> | System umożliwia uwierzytelnionym użytkownikom tworzenie własnych wydarzeń sportowych w prosty i intuicyjny sposób.<br/><br/>Twórcy wydarzeń mają pełną kontrolę nad utworzonymi przez nich wydarzeniami<br> i mogą nimi zarządzać (edycja, anulowanie). |
 
 | Czaty i statusy | Opis |
 |-----------------------------------|------|
-| <img src="docs/screens/GroupChat.png" width="650"/>| System umożliwia komunikację pomiędzy użytkownikami aplikacji poprzez chaty prywatne lub grupoe oraz pokazuje status **online/offline** użytkowników w czasie rzeczywistym dzięki wykorzystaniu **SignalR**. |
+| <img src="docs/screens/GroupChat.jpg" width="650"/>| System umożliwia komunikację pomiędzy użytkownikami aplikacji poprzez chaty prywatne lub grupoe oraz pokazuje status **online/offline** użytkowników w czasie rzeczywistym dzięki wykorzystaniu **SignalR**. |
 
 | Profil użytkownika | Opis |
 |-----------------------------------|------|

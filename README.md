@@ -47,23 +47,26 @@ Platforma dla społeczności sportowej – umawianie się na wspólne treningi i
 
 ---
 
-## Architektura
+##  Architektura
 
 ```
 SportMeet/
- ├─ client/                 # Frontend (Vue 3, Vite)
- │   └─ SportMeetClient/
- │       ├─ src/pages/      # Widoki (Login, Register, Events, Profile itd.)
- │       ├─ src/components/ # Komponenty UI (Navbar, Chat, Footer)
- │       ├─ src/services/   # API clients (Axios + JWT)
- │       ├─ src/stores/     # Pinia stores (auth, user, presence)
- │       └─ src/utils/      # SignalR helper
+ ├─ backend/
+ │   └─ src/
+ │      ├─ API/                # Kontrolery, konfiguracja, instalatory, SignalR hubs
+ │      ├─ Application/        # DTO, serwisy, interfejsy, AutoMapper
+ │      ├─ Domain/             # Encje i interfejsy repozytoriów
+ │      └─ Infrastructure/     # DbContext, repozytoria, migracje, serwisy zewnętrzne
+ │   
  │
- └─ src/                    # Backend (ASP.NET Core 8)
-     ├─ API/                # Kontrolery, konfiguracja, instalatory, SignalR hubs
-     ├─ Application/        # DTO, serwisy, interfejsy, AutoMapper
-     ├─ Domain/             # Encje, interfejsy repozytoriów
-     └─ Infrastructure/     # DBContext, repozytoria, migracje, serwisy zewnętrzne
+ └─ frontend/
+    └─ client/                 # Aplikacja Vue 3 (Vite)
+        ├─ src/pages/          # Widoki (Login, Register, Events, Profile itd.)
+        ├─ src/components/     # Komponenty UI (Navbar, Chat, Footer)
+        ├─ src/services/       # API clients (Axios + JWT)
+        ├─ src/stores/         # Pinia stores (auth, user, presence)
+        └─ src/utils/          # SignalR helper
+ 
 ```
 
 ## Autorzy i informacje:
